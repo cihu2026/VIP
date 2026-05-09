@@ -3,219 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🌿 LINE AI 智能排程板</title>
+    <title>🌿 日曆型 AI 排程板</title>
     <style>
         :root {
-            --bg-color: #0f1115;
-            --card-bg: #1b1f27;
-            --input-bg: #11151c;
-            --accent-green: #00c853;
-            --accent-blue: #0091ea;
-            --text-main: #ffffff;
-            --text-dim: #a0a0a0;
+            --bg-color: #121418;
+            --card-bg: #1e222a;
+            --cal-bg: #2d3440;
+            --accent: #00e676;
+            --text-dim: #94a3b8;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Noto Sans TC", sans-serif; }
-        body { background: var(--bg-color); color: var(--text-main); padding: 15px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; }
+        body { background: var(--bg-color); color: #fff; padding: 15px; padding-bottom: 50px; }
 
-        .header { text-align: center; margin: 20px 0 30px; }
-        .title { font-size: 28px; font-weight: 900; letter-spacing: 1px; }
-        .sub { opacity: .6; font-size: 14px; margin-top: 5px; }
-
-        .card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        h2 { font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-
+        /* 標題與輸入區 */
+        .top-info { text-align: center; margin-bottom: 20px; }
+        .input-card { background: var(--card-bg); border-radius: 20px; padding: 15px; margin-bottom: 25px; border: 1px solid #333; }
         textarea { 
-            width: 100%; min-height: 120px; border: none; border-radius: 15px; 
-            background: var(--input-bg); color: white; padding: 15px; font-size: 15px; 
-            line-height: 1.6; resize: none; outline: none;
+            width: 100%; min-height: 100px; background: #111; border: 1px solid #444; 
+            color: #fff; padding: 12px; border-radius: 12px; font-size: 16px; margin-bottom: 10px;
+        }
+        .btn-row { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .btn-add { background: var(--accent); color: #000; }
+        .btn-clear { background: #333; color: #ff5252; }
+
+        /* 搜尋框 */
+        .search-box {
+            width: 100%; padding: 12px; background: #2d3440; border: none; 
+            border-radius: 10px; color: #fff; margin-bottom: 20px;
         }
 
-        .btn-group { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn { 
-            padding: 15px; border: none; border-radius: 15px; color: white; 
-            font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s;
+        /* 日曆區段 */
+        .month-header { 
+            font-size: 24px; font-weight: 800; color: var(--accent);
+            margin: 30px 0 15px 5px; display: flex; align-items: center;
         }
-        .btn-main { background: linear-gradient(135deg, var(--accent-green), var(--accent-blue)); }
-        .btn-red { background: #3d161a; color: #ff5252; }
-        .btn:active { transform: scale(0.98); opacity: 0.9; }
+        .month-header::after { content: ''; flex: 1; height: 1px; background: #333; margin-left: 15px; }
 
-        .search-bar {
-            width: 100%; padding: 12px 20px; border: none; border-radius: 30px;
-            background: var(--input-bg); color: white; margin-bottom: 10px; outline: none;
-        }
-
-        /* 時間軸樣式 */
-        .month-section { margin-top: 30px; }
-        .month-title { 
-            font-size: 22px; font-weight: 900; margin-bottom: 15px; 
-            padding-left: 10px; border-left: 5px solid var(--accent-green);
+        /* 單個事件段落 */
+        .event-block {
+            display: flex; gap: 15px; background: var(--card-bg);
+            margin-bottom: 15px; border-radius: 16px; overflow: hidden;
+            border: 1px solid #333; position: relative;
         }
 
-        .event-item {
-            display: flex; gap: 15px; margin-bottom: 15px;
-            background: #242a35; border-radius: 18px; padding: 15px;
-            animation: fadeIn 0.4s ease-out;
+        /* 左側日曆格 */
+        .cal-box {
+            width: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--cal-bg); border-right: 1px solid #333;
+        }
+        .cal-month { font-size: 12px; opacity: 0.7; margin-bottom: 2px; }
+        .cal-date { font-size: 26px; font-weight: 900; line-height: 1; }
+        .cal-day { font-size: 12px; margin-top: 5px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.3); }
+
+        /* 右側詳細內容 */
+        .info-box { flex: 1; padding: 12px; }
+        .info-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .info-time { color: var(--accent); font-weight: bold; font-size: 15px; }
+        .info-tag { font-size: 11px; background: #444; padding: 2px 8px; border-radius: 20px; color: #ccc; }
+        .info-text { 
+            font-size: 15px; color: #e2e8f0; line-height: 1.6; 
+            white-space: pre-wrap; word-break: break-all;
         }
 
-        /* 左側日曆方塊 */
-        .date-box {
-            min-width: 65px; height: 75px; background: #2d3544;
-            border-radius: 12px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            border-top: 4px solid var(--accent-green);
-        }
-        .date-day { font-size: 22px; font-weight: 900; }
-        .date-weekday { font-size: 12px; opacity: 0.6; }
-
-        /* 右側內容 */
-        .event-content { flex: 1; }
-        .event-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .event-time { font-weight: 700; color: var(--accent-blue); font-size: 15px; }
-        .event-tag { 
-            font-size: 11px; padding: 2px 8px; border-radius: 6px; 
-            background: rgba(255,255,255,0.1); font-weight: 600;
-        }
-        .event-note { 
-            margin-top: 8px; font-size: 14px; line-height: 1.6; 
-            white-space: pre-wrap; word-break: break-all; color: #e0e0e0;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .footer { text-align: center; opacity: 0.3; font-size: 12px; margin: 40px 0; }
+        /* 側邊顏色條 */
+        .color-bar { width: 6px; height: 100%; position: absolute; left: 0; top: 0; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div class="title">🌿 LINE AI 排程板</div>
-    <div class="sub">自動解析訊息，建立半年活動排程</div>
+<div class="top-info">
+    <h2>📅 LINE AI 日曆排程</h2>
 </div>
 
-<div class="card">
-    <h2>📝 貼上訊息</h2>
-    <textarea id="inputText" placeholder="直接貼上 LINE 訊息，例如：&#10;6/26 13:30 開幕記者會 (市長出席)"></textarea>
-    <div class="btn-group">
-        <button class="btn btn-main" onclick="analyzeText()">🤖 AI 智能加入</button>
-        <button class="btn btn-red" onclick="clearAll()">清除</button>
+<div class="input-card">
+    <textarea id="inputText" placeholder="直接貼上 LINE 訊息...&#10;範例：7/15 14:00 專案會議 (地點：3樓)"></textarea>
+    <div class="btn-row">
+        <button class="btn btn-add" onclick="analyze()">⚡ 快速加入</button>
+        <button class="btn btn-clear" onclick="clearData()">清空</button>
     </div>
 </div>
 
-<input type="text" id="searchInput" class="search-bar" placeholder="🔍 搜尋關鍵字或日期..." onkeyup="renderEvents()">
+<input type="text" id="search" class="search-box" placeholder="🔍 搜尋事件內容..." onkeyup="render()">
 
-<div id="timeline">
-    <!-- 事件會顯示在這裡 -->
-</div>
-
-<div class="footer">Line Schedule AI Dashboard v2.0</div>
+<div id="timeline"></div>
 
 <script>
-    const smartTypes = [
-        { keyword: "市長", type: "🔴 市長行程", color: "#ff5252" },
-        { keyword: "VIP", type: "🟣 VIP貴賓", color: "#9c27b0" },
-        { keyword: "記者會", type: "🟠 記者會", color: "#ff9800" },
-        { keyword: "拍攝", type: "🔵 攝影採訪", color: "#2979ff" },
-        { keyword: "攝影", type: "🔵 攝影採訪", color: "#2979ff" },
-        { keyword: "議員", type: "🏛️ 議會相關", color: "#ff6d00" },
-        { keyword: "導覽", type: "🟢 導覽需求", color: "#00c853" }
+    let db = JSON.parse(localStorage.getItem("calendarEvents")) || [];
+
+    const types = [
+        { key: "市長", tag: "🔴 重要行程", color: "#ff5252" },
+        { key: "記者會", tag: "🟠 媒體活動", color: "#fb8c00" },
+        { key: "會議", tag: "🔵 內部會議", color: "#2196f3" },
+        { key: "拍攝", tag: "🎥 影像攝影", color: "#e91e63" },
+        { key: "現勘", tag: "🚧 現場勘查", color: "#00bcd4" }
     ];
 
-    let events = JSON.parse(localStorage.getItem("lineEvents")) || [];
+    function analyze() {
+        const raw = document.getElementById("inputText").value.trim();
+        if(!raw) return;
 
-    function analyzeText() {
-        const text = document.getElementById("inputText").value.trim();
-        if (!text) return alert("請輸入內容");
+        const dateMatch = raw.match(/(\d{1,2})[\/\.月](\d{1,2})/);
+        const timeMatch = raw.match(/(\d{1,2})[:：](\d{2})/);
 
-        // 1. 提取日期 (支援 M/D, M月D日)
-        const dateMatch = text.match(/(\d{1,2})[\/\.月](\d{1,2})/);
-        // 2. 提取時間 (支援 HH:mm)
-        const timeMatch = text.match(/(\d{1,2})[:：](\d{2})/);
+        const m = dateMatch ? parseInt(dateMatch[1]) : (new Date().getMonth() + 1);
+        const d = dateMatch ? parseInt(dateMatch[2]) : new Date().getDate();
+        const t = timeMatch ? timeMatch[0] : "全天";
 
-        let month = dateMatch ? parseInt(dateMatch[1]) : (new Date().getMonth() + 1);
-        let day = dateMatch ? parseInt(dateMatch[2]) : new Date().getDate();
-        let time = timeMatch ? timeMatch[0] : "全天";
+        const year = new Date().getFullYear();
+        const weekDay = ["週日","週一","週二","週三","週四","週五","週六"][new Date(year, m-1, d).getDay()];
 
-        // 計算星期
-        const currentYear = new Date().getFullYear();
-        const dateObj = new Date(currentYear, month - 1, day);
-        const weekdays = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
-        let weekday = weekdays[dateObj.getDay()];
-
-        // 3. AI 分類
-        let type = "📌 一般事件";
-        let color = "#00c853";
-        smartTypes.forEach(t => {
-            if (text.includes(t.keyword)) {
-                type = t.type;
-                color = t.color;
-            }
+        let category = "📌 一般事項";
+        let color = "#00e676";
+        types.forEach(item => {
+            if(raw.includes(item.key)) { category = item.tag; color = item.color; }
         });
 
-        const newEvent = {
-            id: Date.now(),
-            month, day, weekday, time, type, color,
-            note: text,
-            fullDate: `${month}/${day}`
-        };
-
-        events.push(newEvent);
-        saveAndRender();
+        db.push({ m, d, weekDay, t, category, color, note: raw, id: Date.now() });
+        db.sort((a,b) => a.m !== b.m ? a.m - b.m : a.day - b.day);
+        
+        localStorage.setItem("calendarEvents", JSON.stringify(db));
         document.getElementById("inputText").value = "";
+        render();
     }
 
-    function saveAndRender() {
-        // 排序：先比月份，再比日期，最後比時間
-        events.sort((a, b) => a.month !== b.month ? a.month - b.month : a.day - b.day);
-        localStorage.setItem("lineEvents", JSON.stringify(events));
-        renderEvents();
-    }
+    function render() {
+        const query = document.getElementById("search").value.toLowerCase();
+        const container = document.getElementById("timeline");
+        container.innerHTML = "";
 
-    function renderEvents() {
-        const keyword = document.getElementById("searchInput").value.toLowerCase();
-        const timeline = document.getElementById("timeline");
-        timeline.innerHTML = "";
-
-        const filtered = events.filter(e => e.note.toLowerCase().includes(keyword) || e.type.toLowerCase().includes(keyword));
-
-        // 月份分組顯示
-        let currentMonth = -1;
-        filtered.forEach(e => {
-            if (e.month !== currentMonth) {
-                currentMonth = e.month;
-                const mTitle = document.createElement('div');
-                mTitle.className = 'month-title';
-                mTitle.innerText = `📅 ${currentMonth}月`;
-                timeline.appendChild(mTitle);
+        let currentM = -1;
+        db.filter(ev => ev.note.toLowerCase().includes(query)).forEach(ev => {
+            if(ev.m !== currentM) {
+                currentM = ev.m;
+                container.innerHTML += `<div class="month-header">${currentM} 月份</div>`;
             }
 
-            const item = document.createElement('div');
-            item.className = 'event-item';
-            item.innerHTML = `
-                <div class="date-box" style="border-top-color: ${e.color}">
-                    <div class="date-day">${e.day}</div>
-                    <div class="date-weekday">${e.weekday}</div>
-                </div>
-                <div class="event-content">
-                    <div class="event-header">
-                        <span class="event-time">🕒 ${e.time}</span>
-                        <span class="event-tag" style="color:${e.color}">${e.type}</span>
+            container.innerHTML += `
+                <div class="event-block">
+                    <div class="color-bar" style="background:${ev.color}"></div>
+                    <div class="cal-box">
+                        <div class="cal-month">${ev.m}月</div>
+                        <div class="cal-date">${ev.d}</div>
+                        <div class="cal-day">${ev.weekDay}</div>
                     </div>
-                    <div class="event-note">${e.note}</div>
+                    <div class="info-box">
+                        <div class="info-top">
+                            <div class="info-time">🕒 ${ev.t}</div>
+                            <div class="info-tag">${ev.category}</div>
+                        </div>
+                        <div class="info-text">${ev.note}</div>
+                    </div>
                 </div>
             `;
-            timeline.appendChild(item);
         });
     }
 
-    function clearAll() {
-        if (confirm("確定要清空所有排程嗎？")) {
-            events = [];
-            saveAndRender();
-        }
-    }
+    function clearData() { if(confirm("確定刪除所有日曆資料？")) { db = []; localStorage.clear(); render(); } }
 
-    renderEvents();
+    render();
 </script>
 
 </body>
