@@ -252,6 +252,57 @@ async function scanImage(){
     document.getElementById("result").innerHTML = html;
 }
 
+// 🌿 自動建立今日團體列表
+
+html += "<br><br><h3>📅 今日團體</h3>";
+
+if(timeMatch && found.length > 0){
+
+    timeMatch.forEach((t,index)=>{
+
+        const type = found[index] || "特殊團";
+
+        let color = "#00c853";
+
+        if(type.includes("VIP"))
+            color = "#2979ff";
+
+        if(type.includes("議員"))
+            color = "#ff5252";
+
+        if(type.includes("公務"))
+            color = "#ff9800";
+
+        html += `
+
+        <div style="
+            background:#1e2633;
+            padding:16px;
+            border-radius:18px;
+            margin-top:12px;
+            border-left:8px solid ${color};
+        ">
+
+            <div style="
+                font-size:24px;
+                font-weight:900;
+            ">
+                ${t}
+            </div>
+
+            <div style="
+                margin-top:8px;
+                font-size:18px;
+            ">
+                ${type}
+            </div>
+
+        </div>
+
+        `;
+    });
+}
+
 </script>
 
 </body>
