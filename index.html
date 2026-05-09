@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>📌 後慈湖行程表</title>
+<title>📌 後慈湖行程監控系統</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap');
     *{ margin:0; padding:0; box-sizing:border-box; font-family: "SF Pro Display", "Noto Sans TC", sans-serif; }
@@ -11,7 +11,7 @@
     .header-section { text-align: center; margin-bottom: 30px; }
     .title{ font-size:32px; font-weight:900; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; }
     .card{ background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 30px; padding: 25px; margin-bottom: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-    .today-status{ padding:20px; border-radius:20px; font-size:24px; font-weight:900; text-align:center; transition: 0.5s; }
+    .today-status{ padding:20px; border-radius:20px; font-size:24px; font-weight:900; text-align:center; transition: 0.5s; box-shadow: inset 0 0 20px rgba(255,255,255,0.05); }
     #detail { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
     .detail-card{ background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding:20px; border-radius:22px; position: relative; animation: fadeIn 0.5s ease forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -25,7 +25,7 @@
 <body>
 
 <div class="header-section">
-    <div class="title">📌 後慈湖行程表</div>
+    <div class="title">📌 後慈湖行程監控</div>
 </div>
 
 <div class="card">
@@ -33,7 +33,10 @@
 </div>
 
 <div class="card">
-    <h2 style="margin-bottom: 20px; font-size: 18px; opacity: 0.8;">🔔 即將到來行程 (過期自動隱藏)</h2>
+    <h2 style="margin-bottom: 20px; font-size: 18px; opacity: 0.8; display: flex; align-items: center; gap: 8px;">
+        <span>🔔 待辦行程清單</span>
+        <span style="font-size: 12px; font-weight: normal; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">過期項目已自動過濾</span>
+    </h2>
     <div id="detail"></div>
 </div>
 
@@ -51,11 +54,11 @@ function getType(text = ""){
 
 async function loadSheet(){
     try{
-        const res = await fetch(`${SHEET_URL}&cb=${Date.now()}`);
+        const res = await fetch(`${SHEET_URL}&cb=${new Date().getTime()}`);
         const csv = await res.text();
         parseCSV(csv);
     }catch(err){
-        document.getElementById("todayStatus").innerHTML = "❌ 資料讀取失敗";
+        document.getElementById("todayStatus").innerHTML = "❌ 無法讀取資料";
     }
 }
 
@@ -83,10 +86,10 @@ function render(events){
     const detail = document.getElementById("detail");
     const status = document.getElementById("todayStatus");
     
-    // 設定現在時間
+    // 獲取現在時間點
     const now = new Date();
-    const currentYear = 2026; // 固定年份避免計算錯誤
-    const todayMidnight = new Date(currentYear, now.getMonth(), now.getDate()).getTime();
+    // 建立一個只有「今天日期」的物件，用於比較（去除時分秒）
+    const todayBase = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const currentHour = now.getHours();
 
     detail.innerHTML = "";
@@ -95,24 +98,24 @@ function render(events){
     events.forEach(e => {
         if(!e.date || !e.date.includes("/")) return;
 
-        // 強制解析試算表日期 (假設 5/8)
+        // 解析試算表日期 (格式如 5/8 或 05/08)
         const parts = e.date.split("/");
         const m = parseInt(parts[0]) - 1;
         const d = parseInt(parts[1]);
-        const eventFullDate = new Date(currentYear, m, d);
-        const eventTimeMs = eventFullDate.getTime();
+        const eventDateObj = new Date(now.getFullYear(), m, d);
+        const eventDateTs = eventDateObj.getTime();
         
-        // 解析小時 (假設 10:00)
+        // 解析小時 (格式如 09:00)
         const eventHour = parseInt(e.time.split(":")[0]) || 0;
 
-        // --- 嚴格過濾邏輯 ---
-        // 1. 如果日期 < 今天：隱藏
-        if (eventTimeMs < todayMidnight) return;
+        // --- 嚴格過濾判定 ---
+        // 1. 如果日期比今天早 -> 隱藏
+        if (eventDateTs < todayBase) return;
         
-        // 2. 如果日期是今天，但小時 < 現在小時：隱藏
-        if (eventTimeMs === todayMidnight && eventHour < currentHour) return;
+        // 2. 如果日期是今天，但小時已經過去 -> 隱藏
+        if (eventDateTs === todayBase && eventHour < currentHour) return;
 
-        // 通過過濾則顯示
+        // 通過檢查才顯示
         activeCount++;
         const info = getType(`${e.event} ${e.note}`);
         detail.innerHTML += `
@@ -128,17 +131,17 @@ function render(events){
     });
 
     if(activeCount > 0){
-        status.innerHTML = `📢 剩餘 ${activeCount} 筆待辦行程`;
+        status.innerHTML = `📢 還有 ${activeCount} 筆待辦行程`;
         status.style.background = "linear-gradient(135deg, #1e40af, #3b82f6)";
     } else {
-        status.innerHTML = "✅ 目前無即將到來的行程";
+        status.innerHTML = "✅ 目前無預定行程 (過去項目已自動隱藏)";
         status.style.background = "linear-gradient(135deg, #15803d, #22c55e)";
-        detail.innerHTML = "<div style='opacity:0.4; grid-column: 1/-1; text-align:center; padding:60px;'>清單已空</div>";
+        detail.innerHTML = "<div style='opacity:0.4; grid-column: 1/-1; text-align:center; padding:60px;'>目前沒有即將到來的項目</div>";
     }
 }
 
 loadSheet();
-setInterval(loadSheet, 60000);
+setInterval(loadSheet, 30000); // 每 30 秒自動更新一次
 </script>
 </body>
 </html>
