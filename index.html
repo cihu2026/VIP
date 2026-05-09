@@ -9,9 +9,7 @@ initial-scale=1.0,
 maximum-scale=1.0,
 user-scalable=no">
 
-<title>🌿 AI 半年事件資料庫</title>
-
-<script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
+<title>🌿 LINE AI 排程板</title>
 
 <style>
 
@@ -50,21 +48,25 @@ body{
     margin-bottom:20px;
 }
 
-.upload{
-    width:100%;
-    padding:18px;
-    border:none;
-    border-radius:18px;
-    background:#2b3240;
-    color:white;
-    font-size:17px;
-}
+textarea{
 
-.preview{
     width:100%;
+
+    min-height:180px;
+
+    border:none;
+
     border-radius:20px;
-    margin-top:15px;
-    display:none;
+
+    background:#11151c;
+
+    color:white;
+
+    padding:18px;
+
+    font-size:16px;
+
+    line-height:1.7;
 }
 
 .btn{
@@ -93,14 +95,8 @@ body{
     );
 }
 
-.loading{
-    text-align:center;
-    margin-top:20px;
-    display:none;
-}
-
 .month-title{
-    margin-top:20px;
+    margin-top:25px;
     margin-bottom:12px;
     font-size:28px;
     font-weight:900;
@@ -125,7 +121,6 @@ body{
 .event-time{
     margin-top:8px;
     font-size:18px;
-    opacity:.9;
 }
 
 .event-type{
@@ -134,10 +129,10 @@ body{
     font-weight:800;
 }
 
-.event-detail{
+.event-note{
     margin-top:10px;
-    line-height:1.7;
     opacity:.85;
+    line-height:1.7;
 }
 
 .search{
@@ -158,6 +153,21 @@ body{
     font-size:13px;
 }
 
+.example{
+
+    background:#11151c;
+
+    padding:15px;
+
+    border-radius:16px;
+
+    margin-top:15px;
+
+    line-height:1.8;
+
+    opacity:.85;
+}
+
 </style>
 
 </head>
@@ -165,30 +175,39 @@ body{
 <body>
 
 <div class="title">
-🌿 AI 半年事件資料庫
+🌿 LINE AI 排程板
 </div>
 
 <div class="sub">
-LINE截圖 → OCR → AI整理 → 半年事件時間軸
+LINE訊息 → AI分析 → 半年事件時間軸
 </div>
 
 <div class="card">
 
-<input
-type="file"
-id="imageInput"
-accept="image/*"
-class="upload">
+<h2>
+📝 貼上 LINE 訊息
+</h2>
 
-<img
-id="preview"
-class="preview">
+<div class="example">
+
+日期：6/26  
+時間：13:30  
+事件：開幕記者會  
+備註：市長出席
+
+</div>
+
+<textarea
+id="inputText"
+placeholder="請貼上 LINE 訊息">
+
+</textarea>
 
 <button
 class="btn"
-onclick="scanImage()">
+onclick="analyzeText()">
 
-🔍 AI 開始整理
+🤖 AI 分析加入
 
 </button>
 
@@ -200,14 +219,6 @@ onclick="clearAll()">
 
 </button>
 
-<div
-class="loading"
-id="loading">
-
-⏳ AI OCR 分析中...
-
-</div>
-
 </div>
 
 <div class="card">
@@ -216,7 +227,7 @@ id="loading">
 type="text"
 id="searchInput"
 class="search"
-placeholder="🔍 搜尋日期 / VIP / 市長 / 攝影..."
+placeholder="🔍 搜尋日期 / VIP / 市長 / 記者會..."
 
 onkeyup="renderEvents()">
 
@@ -233,12 +244,12 @@ onkeyup="renderEvents()">
 </div>
 
 <div class="footer">
-AI Timeline Dashboard PRO
+LINE AI Timeline Dashboard
 </div>
 
 <script>
 
-// 🌿 AI關鍵字分類
+// 🌿 AI分類
 
 const smartTypes = [
 
@@ -328,144 +339,96 @@ const smartTypes = [
 
 ];
 
-const imageInput =
-document.getElementById("imageInput");
+// 🌿 資料庫
 
-const preview =
-document.getElementById("preview");
-
-const loading =
-document.getElementById("loading");
+let events = JSON.parse(
+    localStorage.getItem("lineEvents")
+) || [];
 
 const timeline =
 document.getElementById("timeline");
 
-// 🌿 資料庫
+// 🌿 AI分析
 
-let events = JSON.parse(
-    localStorage.getItem("timelineEvents")
-) || [];
+function analyzeText(){
 
-// 🌿 預覽圖片
+    const text =
+    document.getElementById("inputText")
+    .value;
 
-imageInput.addEventListener("change",e=>{
+    if(!text){
 
-    const file = e.target.files[0];
-
-    if(file){
-
-        const reader = new FileReader();
-
-        reader.onload = ev => {
-
-            preview.src = ev.target.result;
-
-            preview.style.display = "block";
-        };
-
-        reader.readAsDataURL(file);
-    }
-});
-
-// 🌿 OCR
-
-async function scanImage(){
-
-    const file =
-    imageInput.files[0];
-
-    if(!file){
-
-        alert("請先上傳截圖");
+        alert("請貼上LINE訊息");
 
         return;
     }
 
-    loading.style.display = "block";
-
-    try{
-
-        const {
-            data:{ text }
-        } = await Tesseract.recognize(
-
-            file,
-
-            'chi_tra+eng',
-
-            {
-                logger:m=>console.log(m)
-            }
-        );
-
-        loading.style.display = "none";
-
-        analyzeAI(text);
-
-    }catch(err){
-
-        console.error(err);
-
-        loading.style.display = "none";
-
-        alert("OCR辨識失敗");
-    }
-}
-
-// 🌿 AI分析
-
-function analyzeAI(text){
-
     // 日期
 
-    const dates =
+    const dateMatch =
     text.match(
         /\d{1,2}\/\d{1,2}|\d{1,2}月\d{1,2}日/g
-    ) || [];
+    );
 
     // 時間
 
-    const times =
-    text.match(/\d{1,2}[:：]\d{2}/g) || [];
+    const timeMatch =
+    text.match(/\d{1,2}[:：]\d{2}/g);
 
-    smartTypes.forEach(type=>{
+    let date =
+    dateMatch
+    ?
+    dateMatch[0]
+    :
+    "未指定日期";
 
-        if(text.includes(type.keyword)){
+    let time =
+    timeMatch
+    ?
+    timeMatch[0]
+    :
+    "未指定時間";
 
-            dates.forEach((date,index)=>{
+    let month =
+    parseInt(
+        date.split(/[\/月]/)[0]
+    );
 
-                const month =
-                parseInt(date.split(/[\/月]/)[0]);
+    let day =
+    parseInt(
+        date.match(/\d{1,2}(?=日|$)/)
+    );
 
-                const day =
-                parseInt(date.match(/\d{1,2}(?=日|$)/));
+    // AI分類
 
-                events.unshift({
+    let foundType = "📌 一般事件";
 
-                    month,
-                    day,
-                    date,
+    let foundColor = "#00c853";
 
-                    time:
-                    times[index]
-                    || "未指定",
+    smartTypes.forEach(t=>{
 
-                    type:
-                    type.type,
+        if(text.includes(t.keyword)){
 
-                    keyword:
-                    type.keyword,
+            foundType = t.type;
 
-                    color:
-                    type.color,
-
-                    raw:text
-                });
-            });
+            foundColor = t.color;
         }
     });
 
-    // 🌿 去重複
+    // 加入資料庫
+
+    events.unshift({
+
+        date,
+        time,
+        month,
+        day,
+        type:foundType,
+        color:foundColor,
+        note:text
+    });
+
+    // 去重複
 
     events = events.filter(
         (v,i,a)=>
@@ -473,17 +436,20 @@ function analyzeAI(text){
         i===a.findIndex(t=>
 
             t.date===v.date &&
-            t.type===v.type &&
-            t.time===v.time
+            t.time===v.time &&
+            t.note===v.note
         )
     );
 
-    // 🌿 儲存
+    // 儲存
 
     localStorage.setItem(
-        "timelineEvents",
+        "lineEvents",
         JSON.stringify(events)
     );
+
+    document.getElementById("inputText")
+    .value = "";
 
     renderEvents();
 }
@@ -508,10 +474,10 @@ function renderEvents(){
         e.type.toLowerCase().includes(keyword)
         ||
 
-        e.keyword.toLowerCase().includes(keyword)
+        e.note.toLowerCase().includes(keyword)
     );
 
-    // 🌿 排序
+    // 排序
 
     filtered.sort((a,b)=>{
 
@@ -523,7 +489,7 @@ function renderEvents(){
         return a.day-b.day;
     });
 
-    // 🌿 月份群組
+    // 月份群組
 
     let grouped = {};
 
@@ -537,7 +503,7 @@ function renderEvents(){
         grouped[e.month].push(e);
     });
 
-    // 🌿 UI
+    // UI
 
     for(let month in grouped){
 
@@ -572,9 +538,8 @@ function renderEvents(){
                     ${e.type}
                 </div>
 
-                <div class="event-detail">
-                    關鍵字：
-                    ${e.keyword}
+                <div class="event-note">
+                    ${e.note}
                 </div>
 
             </div>
@@ -590,7 +555,7 @@ function clearAll(){
     if(confirm("確定清除全部資料？")){
 
         localStorage.removeItem(
-            "timelineEvents"
+            "lineEvents"
         );
 
         events = [];
