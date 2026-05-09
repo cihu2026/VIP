@@ -3,86 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>📌 後慈湖特殊行程表</title>
+<title>📌 後慈湖行程表</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap');
-
-    *{
-        margin:0;
-        padding:0;
-        box-sizing:border-box;
-        font-family: "SF Pro Display", "Noto Sans TC", sans-serif;
-    }
-
-    body{
-        background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
-        color:#e2e8f0;
-        padding:20px;
-        min-height:100vh;
-    }
-
+    *{ margin:0; padding:0; box-sizing:border-box; font-family: "SF Pro Display", "Noto Sans TC", sans-serif; }
+    body{ background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%); color:#e2e8f0; padding:20px; min-height:100vh; }
     .header-section { text-align: center; margin-bottom: 30px; }
-    .title{
-        font-size:32px; font-weight:900;
-        background: linear-gradient(to right, #fff, #94a3b8);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        letter-spacing: 2px;
-    }
-
-    .card{
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 30px;
-        padding: 25px;
-        margin-bottom: 25px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-    }
-
-    /* 頂部狀態列 */
-    .today-status{
-        padding:20px; border-radius:20px;
-        font-size:24px; font-weight:900; text-align:center;
-        transition: 0.5s;
-        box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
-    }
-
-    /* 內容區塊佈局 */
+    .title{ font-size:32px; font-weight:900; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; }
+    .card{ background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 30px; padding: 25px; margin-bottom: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+    .today-status{ padding:20px; border-radius:20px; font-size:24px; font-weight:900; text-align:center; transition: 0.5s; }
     #detail { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
-
-    .detail-card{
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        padding:20px; border-radius:22px;
-        position: relative;
-        overflow: hidden;
-        animation: fadeIn 0.5s ease forwards;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
+    .detail-card{ background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding:20px; border-radius:22px; position: relative; animation: fadeIn 0.5s ease forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .info-row { font-size: 15px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
     .info-label { opacity: 0.6; min-width: 25px; font-size: 14px; margin-top: 2px; }
-    
-    .badge{ 
-        position: absolute; top: 20px; right: 20px;
-        padding:4px 12px; border-radius:8px; font-size:12px; font-weight:900; 
-    }
-
+    .badge{ position: absolute; top: 20px; right: 20px; padding:4px 12px; border-radius:8px; font-size:12px; font-weight:900; }
     h3 { margin-bottom: 15px; font-size: 18px; color: #60a5fa; }
-    .note-box { 
-        margin-top: 10px; padding: 12px; background: rgba(0,0,0,0.2); 
-        border-radius: 12px; font-size: 14px; border-left: 4px solid #64748b;
-        color: #cbd5e1; line-height: 1.5;
-    }
-
-    @media (max-width: 480px) {
-        .title { font-size: 24px; }
-        .today-status { font-size: 20px; }
-    }
+    .note-box { margin-top: 10px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 12px; font-size: 14px; border-left: 4px solid #64748b; color: #cbd5e1; }
 </style>
 </head>
 <body>
@@ -96,15 +33,11 @@
 </div>
 
 <div class="card">
-    <h2 style="margin-bottom: 20px; font-size: 18px; opacity: 0.8; display: flex; align-items: center; gap: 8px;">
-        <span>🔔 待辦行程清單</span>
-        <span style="font-size: 12px; font-weight: normal; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">過期自動隱藏</span>
-    </h2>
+    <h2 style="margin-bottom: 20px; font-size: 18px; opacity: 0.8;">🔔 即將到來行程 (過期自動隱藏)</h2>
     <div id="detail"></div>
 </div>
 
 <script>
-// 試算表 ID
 const SHEET_ID = "1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg";
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
@@ -118,7 +51,7 @@ function getType(text = ""){
 
 async function loadSheet(){
     try{
-        const res = await fetch(`${SHEET_URL}&cachebust=${new Date().getTime()}`);
+        const res = await fetch(`${SHEET_URL}&cb=${Date.now()}`);
         const csv = await res.text();
         parseCSV(csv);
     }catch(err){
@@ -149,10 +82,11 @@ function parseCSV(csv){
 function render(events){
     const detail = document.getElementById("detail");
     const status = document.getElementById("todayStatus");
-    const now = new Date();
     
-    // 取得今日凌晨時間作為基準
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    // 設定現在時間
+    const now = new Date();
+    const currentYear = 2026; // 固定年份避免計算錯誤
+    const todayMidnight = new Date(currentYear, now.getMonth(), now.getDate()).getTime();
     const currentHour = now.getHours();
 
     detail.innerHTML = "";
@@ -161,47 +95,50 @@ function render(events){
     events.forEach(e => {
         if(!e.date || !e.date.includes("/")) return;
 
-        // 解析日期 (M/D)
-        const dateParts = e.date.split("/");
-        const eventDate = new Date(now.getFullYear(), parseInt(dateParts[0])-1, parseInt(dateParts[1]));
+        // 強制解析試算表日期 (假設 5/8)
+        const parts = e.date.split("/");
+        const m = parseInt(parts[0]) - 1;
+        const d = parseInt(parts[1]);
+        const eventFullDate = new Date(currentYear, m, d);
+        const eventTimeMs = eventFullDate.getTime();
         
-        // 解析小時 (HH:mm)
+        // 解析小時 (假設 10:00)
         const eventHour = parseInt(e.time.split(":")[0]) || 0;
 
-        // 過濾邏輯：1. 不是過去的日期 2. 如果是今天，小時不能小於現在
-        const isPastDay = eventDate < todayStart;
-        const isToday = eventDate.getTime() === todayStart.getTime();
-        const isExpiredToday = isToday && eventHour < currentHour;
+        // --- 嚴格過濾邏輯 ---
+        // 1. 如果日期 < 今天：隱藏
+        if (eventTimeMs < todayMidnight) return;
+        
+        // 2. 如果日期是今天，但小時 < 現在小時：隱藏
+        if (eventTimeMs === todayMidnight && eventHour < currentHour) return;
 
-        if (!isPastDay && !isExpiredToday) {
-            activeCount++;
-            const info = getType(`${e.event} ${e.note}`);
-            
-            detail.innerHTML += `
-                <div class="detail-card">
-                    <span class="badge" style="background:${info.color}">${info.label}</span>
-                    <h3>📅 ${e.date} <span style="margin-left:8px; color:#fff;">${e.time}</span></h3>
-                    <div class="info-row"><span class="info-label">👤</span> <span><b>${e.name}</b> (${e.people}人)</span></div>
-                    <div class="info-row"><span class="info-label">📌</span> <span>${e.event}</span></div>
-                    <div class="info-row"><span class="info-label">📞</span> <span>${e.phone}</span></div>
-                    ${e.note ? `<div class="note-box"><b>備註：</b><br>${e.note}</div>` : ''}
-                </div>
-            `;
-        }
+        // 通過過濾則顯示
+        activeCount++;
+        const info = getType(`${e.event} ${e.note}`);
+        detail.innerHTML += `
+            <div class="detail-card">
+                <span class="badge" style="background:${info.color}">${info.label}</span>
+                <h3>📅 ${e.date} <span style="margin-left:8px; color:#fff;">${e.time}</span></h3>
+                <div class="info-row"><span class="info-label">👤</span> <span><b>${e.name}</b> (${e.people}人)</span></div>
+                <div class="info-row"><span class="info-label">📌</span> <span>${e.event}</span></div>
+                <div class="info-row"><span class="info-label">📞</span> <span>${e.phone}</span></div>
+                ${e.note ? `<div class="note-box"><b>備註：</b><br>${e.note}</div>` : ''}
+            </div>
+        `;
     });
 
     if(activeCount > 0){
         status.innerHTML = `📢 剩餘 ${activeCount} 筆待辦行程`;
         status.style.background = "linear-gradient(135deg, #1e40af, #3b82f6)";
     } else {
-        status.innerHTML = "✅ 今日行程已結束 / 暫無待辦項目";
+        status.innerHTML = "✅ 目前無即將到來的行程";
         status.style.background = "linear-gradient(135deg, #15803d, #22c55e)";
-        detail.innerHTML = "<div style='opacity:0.4; grid-column: 1/-1; text-align:center; padding:60px;'>目前沒有即將到來的行程</div>";
+        detail.innerHTML = "<div style='opacity:0.4; grid-column: 1/-1; text-align:center; padding:60px;'>清單已空</div>";
     }
 }
 
 loadSheet();
-setInterval(loadSheet, 60000); // 每分鐘刷新一次
+setInterval(loadSheet, 60000);
 </script>
 </body>
 </html>
