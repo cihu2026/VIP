@@ -3,72 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>📅 後慈湖行程看板</title>
+    <title>📌 後慈湖行政行程看板</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        
         :root {
-            --bg: #0f172a;
-            --card: rgba(255,255,255,0.07);
-            --vip: #ff4d4d;
-            --pending: #fbbf24;
-            --today: #3b82f6;
+            --bg: #0b0f1a;
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #3b82f6;
+            --vip: #f43f5e;
+            --pending: #f59e0b;
         }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: "Noto Sans TC", sans-serif; }
-        body { background: var(--bg); color: #e2e8f0; padding: 10px; min-height: 100vh; }
 
-        .header { text-align: center; margin: 15px 0; }
-        .month-title { font-size: 28px; font-weight: 900; color: #fff; }
-
-        /* 日曆區域 */
-        .calendar-grid { 
-            display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; 
-            background: var(--card); padding: 12px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
+        * { margin:0; padding:0; box-sizing:border-box; font-family: "SF Pro Display", "Noto Sans TC", sans-serif; }
+        
+        body { 
+            background: radial-gradient(circle at top left, #1e293b 0%, var(--bg) 60%); 
+            color: #f1f5f9; 
+            padding: 16px; 
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
-        .weekday { text-align: center; font-size: 16px; font-weight: 700; opacity: 0.6; color: #94a3b8; }
+
+        /* 標題區 */
+        .header { margin: 20px 0 25px; display: flex; justify-content: space-between; align-items: center; }
+        .month-title { font-size: 32px; font-weight: 900; background: linear-gradient(to bottom, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* 日曆容器 */
+        .calendar-container {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 18px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .weekday { text-align: center; font-size: 14px; font-weight: 900; color: #64748b; padding-bottom: 12px; text-transform: uppercase; }
+
         .day { 
-            aspect-ratio: 0.9 / 1; background: rgba(255,255,255,0.03); border-radius: 15px; 
+            aspect-ratio: 1/1; 
+            background: rgba(255,255,255,0.02); 
+            border-radius: 18px; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-size: 22px; font-weight: 700; cursor: pointer; position: relative; border: 2px solid transparent;
+            font-size: 20px; font-weight: 700; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
         }
-        .day.today { border: 3px solid var(--today); background: rgba(59, 130, 246, 0.25); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
 
-        .dots { display: flex; gap: 3px; margin-top: 5px; height: 8px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .day:active { transform: scale(0.9); }
 
-        /* 行程清單區域 */
-        .details-title { margin: 25px 0 15px; font-size: 24px; font-weight: 900; color: #fff; padding-left: 5px; border-left: 5px solid var(--today); padding-left: 15px; }
-        .event-list { display: flex; flex-direction: column; gap: 15px; padding-bottom: 50px; }
+        .day.today { 
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--accent);
+            color: #60a5fa;
+            position: relative;
+        }
+        .day.today::before {
+            content: ''; position: absolute; inset: -4px; border: 2px solid var(--accent); border-radius: 22px; opacity: 0.3; animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.1); opacity: 0; } 100% { transform: scale(1); opacity: 0.3; } }
+
+        /* 點點標記 */
+        .dots { display: flex; gap: 4px; margin-top: 6px; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; }
+
+        /* 行程卡片清單 */
+        .details-title { margin: 35px 0 15px; font-size: 26px; font-weight: 900; letter-spacing: -1px; }
+        .event-list { display: flex; flex-direction: column; gap: 16px; padding-bottom: 60px; }
+
         .event-item { 
-            background: var(--card); padding: 20px; border-radius: 20px; border-left: 10px solid var(--today);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            padding: 24px; border-radius: 28px;
+            position: relative; overflow: hidden;
+            transition: 0.3s;
         }
-        .event-item.vip { border-left-color: var(--vip); background: rgba(255, 77, 77, 0.08); }
-        .event-item.pending { border-left-color: var(--pending); background: rgba(251, 191, 36, 0.08); }
 
-        .time-tag { font-size: 18px; font-weight: 900; color: #60a5fa; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        .name-row { font-size: 24px; font-weight: 900; margin-bottom: 8px; color: #fff; }
-        .info-text { font-size: 19px; margin-bottom: 6px; opacity: 0.95; display: flex; align-items: center; gap: 8px; }
-        .note-box { 
-            margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.4); border-radius: 12px; 
-            font-size: 18px; border-left: 4px solid #64748b; color: #cbd5e1; line-height: 1.5;
+        .event-item::before {
+            content: ''; position: absolute; left: 0; top: 0; width: 6px; height: 100%; background: var(--accent);
         }
-        .badge { padding: 3px 10px; border-radius: 6px; font-size: 14px; color: #fff; font-weight: 900; }
+
+        .event-item.vip::before { background: var(--vip); box-shadow: 4px 0 15px rgba(244, 63, 94, 0.4); }
+        .event-item.vip { background: linear-gradient(to right, rgba(244, 63, 94, 0.05), transparent); }
+        
+        .event-item.pending::before { background: var(--pending); }
+
+        .time-tag { font-size: 18px; font-weight: 900; color: #94a3b8; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .name-row { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 6px; }
+        .info-text { font-size: 19px; color: #cbd5e1; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+        
+        .note-box { 
+            margin-top: 18px; padding: 18px; background: rgba(0,0,0,0.2); 
+            border-radius: 16px; font-size: 18px; color: #94a3b8; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .badge { padding: 4px 12px; border-radius: 10px; font-size: 14px; color: #fff; font-weight: 900; text-transform: uppercase; }
+        
+        #update-status { font-size: 12px; color: #475569; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div id="monthDisplay" class="month-title">載入中...</div>
+    <div id="monthDisplay" class="month-title">2026 MAY</div>
 </div>
 
-<div class="calendar-grid" id="calendar">
-    <div class="weekday">日</div><div class="weekday">一</div><div class="weekday">二</div>
-    <div class="weekday">三</div><div class="weekday">四</div><div class="weekday">五</div><div class="weekday">六</div>
+<div class="calendar-container">
+    <div class="calendar-grid" id="calendar">
+        <div class="weekday">Sun</div><div class="weekday">Mon</div><div class="weekday">Tue</div>
+        <div class="weekday">Wed</div><div class="weekday">Thu</div><div class="weekday">Fri</div><div class="weekday">Sat</div>
+    </div>
 </div>
 
-<div class="details-title">📌 <span id="selectedDateText">今日重點行程</span></div>
+<div class="details-title">Schedule <span id="selectedDateText" style="color:var(--accent)">- 今天</span></div>
 <div id="eventList" class="event-list"></div>
+<div id="update-status">自動同步中...</div>
 
 <script>
 const SHEET_ID = "1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg";
@@ -84,7 +138,8 @@ async function init() {
         allEvents = parseCSV(csv);
         renderCalendar(now.getFullYear(), now.getMonth());
         showEvents(now.getMonth() + 1, now.getDate());
-    } catch (e) { document.getElementById("monthDisplay").innerText = "❌ 讀取失敗"; }
+        document.getElementById('update-status').innerText = `最後更新: ${new Date().toLocaleTimeString()}`;
+    } catch (e) { document.getElementById("monthDisplay").innerText = "Connection Error"; }
 }
 
 function parseCSV(csv) {
@@ -92,7 +147,6 @@ function parseCSV(csv) {
     const pattern = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
     return lines.map(line => {
         const c = line.split(pattern).map(v => v.replace(/^"|"$/g, '').trim());
-        // 依照你的表格欄位索引：1:日期, 2:時間, 3:姓名, 4:活動, 5:人數, 6:電話, 7:備註
         if(!c[1] || !c[1].includes("/")) return null;
         const [m, d] = c[1].split("/").map(Number);
         return { month: m, day: d, time: c[2], name: c[3], event: c[4], people: c[5], phone: c[6], note: c[7] || "" };
@@ -101,7 +155,9 @@ function parseCSV(csv) {
 
 function renderCalendar(year, month) {
     const cal = document.getElementById("calendar");
-    document.getElementById("monthDisplay").innerText = `${year}年 ${month + 1}月`;
+    const mNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    document.getElementById("monthDisplay").innerText = `${year} ${mNames[month]}`;
+    
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
@@ -121,12 +177,12 @@ function renderCalendar(year, month) {
         if(dayEvents.length > 0) {
             const dotContainer = document.createElement("div");
             dotContainer.className = "dots";
-            dayEvents.slice(0,4).forEach(ev => {
+            dayEvents.slice(0,3).forEach(ev => {
                 const dot = document.createElement("div"); dot.className = "dot";
                 const t = (ev.event + ev.note).toUpperCase();
-                if(t.includes("VIP") || t.includes("市長") || t.includes("貴賓")) dot.style.backgroundColor = "var(--vip)";
-                else if(t.includes("待確認") || t.includes("暫定")) dot.style.backgroundColor = "var(--pending)";
-                else dot.style.backgroundColor = "#fff";
+                if(t.includes("VIP") || t.includes("市長") || t.includes("貴賓")) dot.style.background = "var(--vip)";
+                else if(t.includes("待確認") || t.includes("暫定")) dot.style.background = "var(--pending)";
+                else dot.style.background = "#fff";
                 dotContainer.appendChild(dot);
             });
             div.appendChild(dotContainer);
@@ -134,10 +190,9 @@ function renderCalendar(year, month) {
 
         div.onclick = () => {
             document.querySelectorAll('.day').forEach(el => el.style.borderColor = "transparent");
-            div.style.borderColor = "var(--today)";
+            div.style.borderColor = "var(--accent)";
             showEvents(month + 1, d);
-            const target = document.querySelector('.details-title');
-            window.scrollTo({ top: target.offsetTop - 20, behavior: 'smooth' });
+            document.querySelector('.details-title').scrollIntoView({ behavior: 'smooth' });
         };
         cal.appendChild(div);
     }
@@ -145,13 +200,13 @@ function renderCalendar(year, month) {
 
 function showEvents(m, d) {
     const list = document.getElementById("eventList");
-    document.getElementById("selectedDateText").innerText = `${m}月${d}日 行程明細`;
+    document.getElementById("selectedDateText").innerText = `- ${m}/${d}`;
     list.innerHTML = "";
 
     const filtered = allEvents.filter(e => e.month === m && e.day === d).sort((a,b) => a.time.localeCompare(b.time));
 
     if(filtered.length === 0) {
-        list.innerHTML = "<div style='opacity:0.5; text-align:center; padding:60px; font-size:22px;'>☕ 今日無預約行程</div>";
+        list.innerHTML = "<div style='opacity:0.3; text-align:center; padding:60px; font-size:20px;'>No Scheduled Events</div>";
         return;
     }
 
@@ -159,25 +214,25 @@ function showEvents(m, d) {
         const t = (e.event + e.note).toUpperCase();
         let typeClass = ""; let badge = "";
         if(t.includes("VIP") || t.includes("市長") || t.includes("貴賓")) { 
-            typeClass = "vip"; badge = "<span class='badge' style='background:var(--vip)'>⭐ VIP</span>"; 
+            typeClass = "vip"; badge = "<span class='badge' style='background:var(--vip)'>VIP</span>"; 
         } else if(t.includes("待確認") || t.includes("暫定")) { 
-            typeClass = "pending"; badge = "<span class='badge' style='background:var(--pending); color:#000'>⚠️ 待確認</span>"; 
+            typeClass = "pending"; badge = "<span class='badge' style='background:var(--pending); color:#000'>PENDING</span>"; 
         }
 
         list.innerHTML += `
             <div class="event-item ${typeClass}">
-                <div class="time-tag">⏰ ${e.time} ${badge}</div>
-                <div class="name-row">${e.name} <span style="font-size:20px; opacity:0.7">(${e.people}人)</span></div>
-                <div class="info-text">📌 ${e.event}</div>
+                <div class="time-tag">🕒 ${e.time} ${badge}</div>
+                <div class="name-row">${e.name} <span style="font-size:18px; opacity:0.5; font-weight:400;">/ ${e.people}P</span></div>
+                <div class="info-text">📍 ${e.event}</div>
                 <div class="info-text">📞 ${e.phone}</div>
-                ${e.note ? `<div class="note-box"><b>💡 備註內容：</b><br>${e.note}</div>` : ""}
+                ${e.note ? `<div class="note-box">Note: ${e.note}</div>` : ""}
             </div>
         `;
     });
 }
 
 init();
-setInterval(init, 60000); // 每分鐘自動刷新
+setInterval(init, 30000); // 30秒自動重整
 </script>
 </body>
 </html>
