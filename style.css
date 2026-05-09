@@ -1,1 +1,325 @@
- 
+ /* 🌿 VIP 偵測助手 PRO */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    font-family:"Noto Sans TC",sans-serif;
+}
+
+:root{
+    --bg:#0f1115;
+    --card:#1a1f29;
+    --card2:#232a36;
+    --text:#ffffff;
+    --sub:#98a3b3;
+    --line:rgba(255,255,255,.08);
+
+    --green:#00c853;
+    --blue:#00b0ff;
+    --red:#ff5252;
+    --orange:#ff9800;
+
+    --shadow:0 10px 35px rgba(0,0,0,.35);
+}
+
+body{
+    background:
+    radial-gradient(circle at top right,#1b2735 0%,transparent 35%),
+    radial-gradient(circle at bottom left,#16222f 0%,transparent 35%),
+    var(--bg);
+
+    color:var(--text);
+    min-height:100vh;
+    padding:18px;
+}
+
+/* 🌿 Header */
+
+.header{
+    text-align:center;
+    margin-top:10px;
+    margin-bottom:24px;
+}
+
+.logo{
+    font-size:34px;
+    font-weight:900;
+    letter-spacing:1px;
+}
+
+.subtitle{
+    margin-top:8px;
+    color:var(--sub);
+    font-size:14px;
+}
+
+/* 🌿 Card */
+
+.card{
+    background:linear-gradient(
+        180deg,
+        rgba(255,255,255,.04),
+        rgba(255,255,255,.02)
+    );
+
+    border:1px solid var(--line);
+
+    border-radius:28px;
+
+    padding:20px;
+
+    box-shadow:var(--shadow);
+
+    backdrop-filter:blur(10px);
+
+    margin-bottom:20px;
+}
+
+/* 🌿 Upload */
+
+.upload-box{
+    border:2px dashed rgba(255,255,255,.15);
+
+    border-radius:24px;
+
+    padding:25px;
+
+    text-align:center;
+
+    background:rgba(255,255,255,.02);
+
+    transition:.25s;
+}
+
+.upload-box:hover{
+    border-color:var(--blue);
+}
+
+.upload-icon{
+    font-size:52px;
+    margin-bottom:10px;
+}
+
+.upload-text{
+    font-size:16px;
+    font-weight:700;
+}
+
+.upload-sub{
+    margin-top:8px;
+    font-size:13px;
+    color:var(--sub);
+}
+
+input[type=file]{
+    display:none;
+}
+
+/* 🌿 Preview */
+
+.preview{
+    width:100%;
+    border-radius:24px;
+    margin-top:18px;
+    display:none;
+    box-shadow:0 8px 25px rgba(0,0,0,.4);
+}
+
+/* 🌿 Button */
+
+.btn{
+    width:100%;
+    margin-top:18px;
+
+    border:none;
+
+    border-radius:22px;
+
+    padding:18px;
+
+    font-size:20px;
+    font-weight:900;
+
+    color:white;
+
+    background:linear-gradient(
+        135deg,
+        var(--green),
+        var(--blue)
+    );
+
+    box-shadow:
+    0 8px 25px rgba(0,176,255,.25);
+
+    transition:.2s;
+}
+
+.btn:active{
+    transform:scale(.98);
+}
+
+/* 🌿 Loading */
+
+.loading{
+    display:none;
+    text-align:center;
+    margin-top:20px;
+}
+
+.spinner{
+    width:65px;
+    height:65px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    border:6px solid rgba(255,255,255,.08);
+    border-top:6px solid var(--blue);
+
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+.loading-text{
+    margin-top:15px;
+    font-size:15px;
+    color:var(--sub);
+}
+
+/* 🌿 Result */
+
+.result{
+    margin-top:22px;
+}
+
+.result-title{
+    font-size:22px;
+    font-weight:900;
+    margin-bottom:15px;
+}
+
+.keyword-wrap{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.keyword{
+    background:var(--red);
+
+    border-radius:999px;
+
+    padding:
+    10px
+    16px;
+
+    font-size:15px;
+    font-weight:800;
+
+    box-shadow:
+    0 5px 15px rgba(255,82,82,.25);
+}
+
+.keyword.ok{
+    background:var(--green);
+}
+
+/* 🌿 OCR文字 */
+
+.text-box{
+    margin-top:20px;
+}
+
+.text-title{
+    margin-bottom:10px;
+    font-size:16px;
+    font-weight:800;
+}
+
+textarea{
+    width:100%;
+
+    min-height:220px;
+
+    border:none;
+
+    border-radius:22px;
+
+    background:#0d1117;
+
+    color:white;
+
+    padding:18px;
+
+    resize:none;
+
+    font-size:14px;
+
+    line-height:1.7;
+
+    border:1px solid rgba(255,255,255,.06);
+}
+
+/* 🌿 Stats */
+
+.stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-top:18px;
+}
+
+.stat-card{
+    background:var(--card2);
+
+    border-radius:22px;
+
+    padding:18px;
+
+    text-align:center;
+}
+
+.stat-number{
+    font-size:28px;
+    font-weight:900;
+}
+
+.stat-label{
+    margin-top:5px;
+    font-size:13px;
+    color:var(--sub);
+}
+
+/* 🌿 Footer */
+
+.footer{
+    margin-top:28px;
+    text-align:center;
+    color:rgba(255,255,255,.35);
+    font-size:12px;
+}
+
+/* 🌿 Mobile */
+
+@media(max-width:480px){
+
+    .logo{
+        font-size:28px;
+    }
+
+    .btn{
+        font-size:18px;
+    }
+
+    .card{
+        padding:16px;
+    }
+}
