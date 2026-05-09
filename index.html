@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>📅 後慈湖行程日曆 (大字版)</title>
+    <title>📅 後慈湖行程看板</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
         :root {
@@ -17,77 +17,43 @@
         body { background: var(--bg); color: #e2e8f0; padding: 10px; min-height: 100vh; }
 
         .header { text-align: center; margin: 15px 0; }
-        .month-title { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: 1px; }
+        .month-title { font-size: 28px; font-weight: 900; color: #fff; }
 
-        /* 日曆主體 - 加大格子 */
+        /* 日曆區域 */
         .calendar-grid { 
-            display: grid; 
-            grid-template-columns: repeat(7, 1fr); 
-            gap: 6px; 
-            background: var(--card); 
-            padding: 12px; 
-            border-radius: 24px; 
-            border: 1px solid rgba(255,255,255,0.1);
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; 
+            background: var(--card); padding: 12px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
         }
-        .weekday { text-align: center; font-size: 16px; font-weight: 700; opacity: 0.6; padding-bottom: 8px; color: #94a3b8; }
-        
+        .weekday { text-align: center; font-size: 16px; font-weight: 700; opacity: 0.6; color: #94a3b8; }
         .day { 
-            aspect-ratio: 0.9 / 1; 
-            background: rgba(255,255,255,0.03); 
-            border-radius: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 20px; /* 加大日期數字 */
-            font-weight: 700;
-            cursor: pointer; 
-            position: relative;
-            border: 2px solid transparent;
-            transition: 0.2s;
+            aspect-ratio: 0.9 / 1; background: rgba(255,255,255,0.03); border-radius: 15px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            font-size: 22px; font-weight: 700; cursor: pointer; position: relative; border: 2px solid transparent;
         }
-        
-        /* 今日高亮 */
-        .day.today { 
-            border: 3px solid var(--today); 
-            background: rgba(59, 130, 246, 0.25);
-            animation: pulse-today 2s infinite;
-        }
-        @keyframes pulse-today {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
-            70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-        }
+        .day.today { border: 3px solid var(--today); background: rgba(59, 130, 246, 0.25); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
 
-        /* 行程小圓點 - 加大 */
-        .dots { display: flex; gap: 3px; margin-top: 5px; }
-        .dot { width: 7px; height: 7px; border-radius: 50%; }
+        .dots { display: flex; gap: 3px; margin-top: 5px; height: 8px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
 
-        /* 下方行程清單 - 加大字體 */
-        .details-title { margin: 25px 0 15px; font-size: 22px; font-weight: 900; color: #fff; padding-left: 5px; }
-        .event-list { display: flex; flex-direction: column; gap: 12px; padding-bottom: 40px; }
-        
+        /* 行程清單區域 */
+        .details-title { margin: 25px 0 15px; font-size: 24px; font-weight: 900; color: #fff; padding-left: 5px; border-left: 5px solid var(--today); padding-left: 15px; }
+        .event-list { display: flex; flex-direction: column; gap: 15px; padding-bottom: 50px; }
         .event-item { 
-            background: var(--card); 
-            padding: 20px; 
-            border-radius: 20px; 
-            border-left: 8px solid var(--today);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            background: var(--card); padding: 20px; border-radius: 20px; border-left: 10px solid var(--today);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
-        .event-item.vip { border-left-color: var(--vip); background: rgba(255, 77, 77, 0.05); }
-        .event-item.pending { border-left-color: var(--pending); background: rgba(251, 191, 36, 0.05); }
+        .event-item.vip { border-left-color: var(--vip); background: rgba(255, 77, 77, 0.08); }
+        .event-item.pending { border-left-color: var(--pending); background: rgba(251, 191, 36, 0.08); }
 
-        .time-tag { font-size: 16px; font-weight: 900; color: #60a5fa; margin-bottom: 8px; }
-        .name-row { font-size: 22px; font-weight: 900; margin-bottom: 5px; color: #fff; }
-        .info-text { font-size: 18px; margin-bottom: 6px; opacity: 0.9; }
+        .time-tag { font-size: 18px; font-weight: 900; color: #60a5fa; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .name-row { font-size: 24px; font-weight: 900; margin-bottom: 8px; color: #fff; }
+        .info-text { font-size: 19px; margin-bottom: 6px; opacity: 0.95; display: flex; align-items: center; gap: 8px; }
         .note-box { 
-            margin-top: 12px; padding: 15px; 
-            background: rgba(0,0,0,0.3); 
-            border-radius: 12px; font-size: 17px; 
-            border-left: 4px solid #64748b; color: #cbd5e1; 
+            margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.4); border-radius: 12px; 
+            font-size: 18px; border-left: 4px solid #64748b; color: #cbd5e1; line-height: 1.5;
         }
-        
-        .type-badge { padding: 2px 8px; border-radius: 6px; font-size: 14px; margin-left: 8px; vertical-align: middle; }
+        .badge { padding: 3px 10px; border-radius: 6px; font-size: 14px; color: #fff; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -101,7 +67,7 @@
     <div class="weekday">三</div><div class="weekday">四</div><div class="weekday">五</div><div class="weekday">六</div>
 </div>
 
-<div class="details-title">📌 <span id="selectedDateText">今日行程</span></div>
+<div class="details-title">📌 <span id="selectedDateText">今日重點行程</span></div>
 <div id="eventList" class="event-list"></div>
 
 <script>
@@ -117,7 +83,6 @@ async function init() {
         const csv = await res.text();
         allEvents = parseCSV(csv);
         renderCalendar(now.getFullYear(), now.getMonth());
-        // 預設顯示今天
         showEvents(now.getMonth() + 1, now.getDate());
     } catch (e) { document.getElementById("monthDisplay").innerText = "❌ 讀取失敗"; }
 }
@@ -127,7 +92,8 @@ function parseCSV(csv) {
     const pattern = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
     return lines.map(line => {
         const c = line.split(pattern).map(v => v.replace(/^"|"$/g, '').trim());
-        if(c.length < 7 || !c[1].includes("/")) return null;
+        // 依照你的表格欄位索引：1:日期, 2:時間, 3:姓名, 4:活動, 5:人數, 6:電話, 7:備註
+        if(!c[1] || !c[1].includes("/")) return null;
         const [m, d] = c[1].split("/").map(Number);
         return { month: m, day: d, time: c[2], name: c[3], event: c[4], people: c[5], phone: c[6], note: c[7] || "" };
     }).filter(e => e);
@@ -136,23 +102,19 @@ function parseCSV(csv) {
 function renderCalendar(year, month) {
     const cal = document.getElementById("calendar");
     document.getElementById("monthDisplay").innerText = `${year}年 ${month + 1}月`;
-
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     document.querySelectorAll('.day').forEach(d => d.remove());
 
     for(let i=0; i<firstDay; i++) {
-        const div = document.createElement("div");
-        div.className = "day";
-        cal.appendChild(div);
+        const div = document.createElement("div"); div.className = "day"; cal.appendChild(div);
     }
 
     for(let d=1; d<=daysInMonth; d++) {
         const div = document.createElement("div");
         div.className = "day";
         if(d === now.getDate() && month === now.getMonth()) div.classList.add("today");
-        
         div.innerHTML = `<span>${d}</span>`;
         
         const dayEvents = allEvents.filter(e => e.month === (month + 1) && e.day === d);
@@ -160,11 +122,10 @@ function renderCalendar(year, month) {
             const dotContainer = document.createElement("div");
             dotContainer.className = "dots";
             dayEvents.slice(0,4).forEach(ev => {
-                const dot = document.createElement("div");
-                dot.className = "dot";
+                const dot = document.createElement("div"); dot.className = "dot";
                 const t = (ev.event + ev.note).toUpperCase();
-                if(t.includes("VIP") || t.includes("市長")) dot.style.backgroundColor = "var(--vip)";
-                else if(t.includes("待確認")) dot.style.backgroundColor = "var(--pending)";
+                if(t.includes("VIP") || t.includes("市長") || t.includes("貴賓")) dot.style.backgroundColor = "var(--vip)";
+                else if(t.includes("待確認") || t.includes("暫定")) dot.style.backgroundColor = "var(--pending)";
                 else dot.style.backgroundColor = "#fff";
                 dotContainer.appendChild(dot);
             });
@@ -175,7 +136,8 @@ function renderCalendar(year, month) {
             document.querySelectorAll('.day').forEach(el => el.style.borderColor = "transparent");
             div.style.borderColor = "var(--today)";
             showEvents(month + 1, d);
-            window.scrollTo({ top: document.querySelector('.details-title').offsetTop - 20, behavior: 'smooth' });
+            const target = document.querySelector('.details-title');
+            window.scrollTo({ top: target.offsetTop - 20, behavior: 'smooth' });
         };
         cal.appendChild(div);
     }
@@ -183,46 +145,39 @@ function renderCalendar(year, month) {
 
 function showEvents(m, d) {
     const list = document.getElementById("eventList");
-    document.getElementById("selectedDateText").innerText = `${m}月${d}日 行程`;
+    document.getElementById("selectedDateText").innerText = `${m}月${d}日 行程明細`;
     list.innerHTML = "";
 
-    const filtered = allEvents.filter(e => e.month === m && e.day === d)
-                              .sort((a,b) => a.time.localeCompare(b.time));
+    const filtered = allEvents.filter(e => e.month === m && e.day === d).sort((a,b) => a.time.localeCompare(b.time));
 
     if(filtered.length === 0) {
-        list.innerHTML = "<div style='opacity:0.5; text-align:center; padding:40px; font-size:20px;'>☕ 此日期尚無行程</div>";
+        list.innerHTML = "<div style='opacity:0.5; text-align:center; padding:60px; font-size:22px;'>☕ 今日無預約行程</div>";
         return;
     }
 
     filtered.forEach(e => {
         const t = (e.event + e.note).toUpperCase();
-        let typeClass = "";
-        let typeLabel = "";
-        if(t.includes("VIP") || t.includes("市長")) { 
-            typeClass = "vip"; 
-            typeLabel = "<span class='type-badge' style='background:var(--vip)'>⭐ VIP</span>"; 
-        }
-        else if(t.includes("待確認")) { 
-            typeClass = "pending"; 
-            typeLabel = "<span class='type-badge' style='background:var(--pending); color:#000'>⚠️ 待確認</span>"; 
+        let typeClass = ""; let badge = "";
+        if(t.includes("VIP") || t.includes("市長") || t.includes("貴賓")) { 
+            typeClass = "vip"; badge = "<span class='badge' style='background:var(--vip)'>⭐ VIP</span>"; 
+        } else if(t.includes("待確認") || t.includes("暫定")) { 
+            typeClass = "pending"; badge = "<span class='badge' style='background:var(--pending); color:#000'>⚠️ 待確認</span>"; 
         }
 
         list.innerHTML += `
             <div class="event-item ${typeClass}">
-                <div class="time-tag">⏰ ${e.time} ${typeLabel}</div>
-                <div class="name-row">${e.name} <span style="font-size:18px; opacity:0.7">(${e.people}人)</span></div>
+                <div class="time-tag">⏰ ${e.time} ${badge}</div>
+                <div class="name-row">${e.name} <span style="font-size:20px; opacity:0.7">(${e.people}人)</span></div>
                 <div class="info-text">📌 ${e.event}</div>
                 <div class="info-text">📞 ${e.phone}</div>
-                ${e.note ? `<div class="note-box"><b>💡 備註：</b><br>${e.note}</div>` : ""}
+                ${e.note ? `<div class="note-box"><b>💡 備註內容：</b><br>${e.note}</div>` : ""}
             </div>
         `;
     });
 }
 
 init();
-// 每 5 分鐘自動刷新一次資料
-setInterval(init, 300000);
+setInterval(init, 60000); // 每分鐘自動刷新
 </script>
-
 </body>
 </html>
