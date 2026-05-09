@@ -1,573 +1,221 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🌿 LINE AI 智能排程板</title>
+    <style>
+        :root {
+            --bg-color: #0f1115;
+            --card-bg: #1b1f27;
+            --input-bg: #11151c;
+            --accent-green: #00c853;
+            --accent-blue: #0091ea;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+        }
 
-<meta name="viewport"
-content="width=device-width,
-initial-scale=1.0,
-maximum-scale=1.0,
-user-scalable=no">
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Noto Sans TC", sans-serif; }
+        body { background: var(--bg-color); color: var(--text-main); padding: 15px; }
 
-<title>🌿 LINE AI 排程板</title>
+        .header { text-align: center; margin: 20px 0 30px; }
+        .title { font-size: 28px; font-weight: 900; letter-spacing: 1px; }
+        .sub { opacity: .6; font-size: 14px; margin-top: 5px; }
 
-<style>
+        .card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        h2 { font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:"Noto Sans TC",sans-serif;
-}
+        textarea { 
+            width: 100%; min-height: 120px; border: none; border-radius: 15px; 
+            background: var(--input-bg); color: white; padding: 15px; font-size: 15px; 
+            line-height: 1.6; resize: none; outline: none;
+        }
 
-body{
-    background:#0f1115;
-    color:white;
-    padding:18px;
-}
+        .btn-group { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn { 
+            padding: 15px; border: none; border-radius: 15px; color: white; 
+            font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s;
+        }
+        .btn-main { background: linear-gradient(135deg, var(--accent-green), var(--accent-blue)); }
+        .btn-red { background: #3d161a; color: #ff5252; }
+        .btn:active { transform: scale(0.98); opacity: 0.9; }
 
-.title{
-    text-align:center;
-    font-size:34px;
-    font-weight:900;
-    margin-top:10px;
-}
+        .search-bar {
+            width: 100%; padding: 12px 20px; border: none; border-radius: 30px;
+            background: var(--input-bg); color: white; margin-bottom: 10px; outline: none;
+        }
 
-.sub{
-    text-align:center;
-    opacity:.7;
-    margin-top:8px;
-    margin-bottom:25px;
-    line-height:1.6;
-}
+        /* 時間軸樣式 */
+        .month-section { margin-top: 30px; }
+        .month-title { 
+            font-size: 22px; font-weight: 900; margin-bottom: 15px; 
+            padding-left: 10px; border-left: 5px solid var(--accent-green);
+        }
 
-.card{
-    background:#1b1f27;
-    border-radius:24px;
-    padding:20px;
-    margin-bottom:20px;
-}
+        .event-item {
+            display: flex; gap: 15px; margin-bottom: 15px;
+            background: #242a35; border-radius: 18px; padding: 15px;
+            animation: fadeIn 0.4s ease-out;
+        }
 
-textarea{
+        /* 左側日曆方塊 */
+        .date-box {
+            min-width: 65px; height: 75px; background: #2d3544;
+            border-radius: 12px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            border-top: 4px solid var(--accent-green);
+        }
+        .date-day { font-size: 22px; font-weight: 900; }
+        .date-weekday { font-size: 12px; opacity: 0.6; }
 
-    width:100%;
+        /* 右側內容 */
+        .event-content { flex: 1; }
+        .event-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .event-time { font-weight: 700; color: var(--accent-blue); font-size: 15px; }
+        .event-tag { 
+            font-size: 11px; padding: 2px 8px; border-radius: 6px; 
+            background: rgba(255,255,255,0.1); font-weight: 600;
+        }
+        .event-note { 
+            margin-top: 8px; font-size: 14px; line-height: 1.6; 
+            white-space: pre-wrap; word-break: break-all; color: #e0e0e0;
+        }
 
-    min-height:180px;
-
-    border:none;
-
-    border-radius:20px;
-
-    background:#11151c;
-
-    color:white;
-
-    padding:18px;
-
-    font-size:16px;
-
-    line-height:1.7;
-}
-
-.btn{
-    width:100%;
-    margin-top:15px;
-    padding:18px;
-    border:none;
-    border-radius:20px;
-
-    background:linear-gradient(
-        135deg,
-        #00c853,
-        #0091ea
-    );
-
-    color:white;
-    font-size:20px;
-    font-weight:900;
-}
-
-.btn.red{
-    background:linear-gradient(
-        135deg,
-        #ff5252,
-        #ff1744
-    );
-}
-
-.month-title{
-    margin-top:25px;
-    margin-bottom:12px;
-    font-size:28px;
-    font-weight:900;
-}
-
-.event-card{
-
-    background:#1e2633;
-
-    padding:18px;
-
-    border-radius:20px;
-
-    margin-top:14px;
-}
-
-.event-date{
-    font-size:24px;
-    font-weight:900;
-}
-
-.event-time{
-    margin-top:8px;
-    font-size:18px;
-}
-
-.event-type{
-    margin-top:10px;
-    font-size:18px;
-    font-weight:800;
-}
-
-.event-note{
-    margin-top:10px;
-    opacity:.85;
-    line-height:1.7;
-}
-
-.search{
-    width:100%;
-    padding:16px;
-    border:none;
-    border-radius:18px;
-    background:#11151c;
-    color:white;
-    margin-top:10px;
-    font-size:16px;
-}
-
-.footer{
-    text-align:center;
-    opacity:.45;
-    margin-top:30px;
-    font-size:13px;
-}
-
-.example{
-
-    background:#11151c;
-
-    padding:15px;
-
-    border-radius:16px;
-
-    margin-top:15px;
-
-    line-height:1.8;
-
-    opacity:.85;
-}
-
-</style>
-
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .footer { text-align: center; opacity: 0.3; font-size: 12px; margin: 40px 0; }
+    </style>
 </head>
-
 <body>
 
-<div class="title">
-🌿 LINE AI 排程板
-</div>
-
-<div class="sub">
-LINE訊息 → AI分析 → 半年事件時間軸
+<div class="header">
+    <div class="title">🌿 LINE AI 排程板</div>
+    <div class="sub">自動解析訊息，建立半年活動排程</div>
 </div>
 
 <div class="card">
-
-<h2>
-📝 貼上 LINE 訊息
-</h2>
-
-<div class="example">
-
-日期：6/26  
-時間：13:30  
-事件：開幕記者會  
-備註：市長出席
-
+    <h2>📝 貼上訊息</h2>
+    <textarea id="inputText" placeholder="直接貼上 LINE 訊息，例如：&#10;6/26 13:30 開幕記者會 (市長出席)"></textarea>
+    <div class="btn-group">
+        <button class="btn btn-main" onclick="analyzeText()">🤖 AI 智能加入</button>
+        <button class="btn btn-red" onclick="clearAll()">清除</button>
+    </div>
 </div>
 
-<textarea
-id="inputText"
-placeholder="請貼上 LINE 訊息">
+<input type="text" id="searchInput" class="search-bar" placeholder="🔍 搜尋關鍵字或日期..." onkeyup="renderEvents()">
 
-</textarea>
-
-<button
-class="btn"
-onclick="analyzeText()">
-
-🤖 AI 分析加入
-
-</button>
-
-<button
-class="btn red"
-onclick="clearAll()">
-
-🗑️ 清除全部資料
-
-</button>
-
+<div id="timeline">
+    <!-- 事件會顯示在這裡 -->
 </div>
 
-<div class="card">
-
-<input
-type="text"
-id="searchInput"
-class="search"
-placeholder="🔍 搜尋日期 / VIP / 市長 / 記者會..."
-
-onkeyup="renderEvents()">
-
-</div>
-
-<div class="card">
-
-<h2>
-📅 半年事件時間軸
-</h2>
-
-<div id="timeline"></div>
-
-</div>
-
-<div class="footer">
-LINE AI Timeline Dashboard
-</div>
+<div class="footer">Line Schedule AI Dashboard v2.0</div>
 
 <script>
-
-// 🌿 AI分類
-
-const smartTypes = [
-
-{
-    keyword:"市長",
-    type:"🔴 市長/VIP",
-    color:"#ff5252"
-},
-
-{
-    keyword:"VIP",
-    type:"🟣 VIP",
-    color:"#9c27b0"
-},
-
-{
-    keyword:"貴賓",
-    type:"🟣 VIP",
-    color:"#9c27b0"
-},
-
-{
-    keyword:"攝影",
-    type:"🔵 攝影活動",
-    color:"#2979ff"
-},
-
-{
-    keyword:"拍攝",
-    type:"🔵 拍攝活動",
-    color:"#2979ff"
-},
-
-{
-    keyword:"記者會",
-    type:"🟠 記者會",
-    color:"#ff9800"
-},
-
-{
-    keyword:"導覽",
-    type:"🟢 導覽需求",
-    color:"#00c853"
-},
-
-{
-    keyword:"KOL",
-    type:"🟡 KOL活動",
-    color:"#ffd600"
-},
-
-{
-    keyword:"KOC",
-    type:"🟡 KOC活動",
-    color:"#ffd600"
-},
-
-{
-    keyword:"警局",
-    type:"🚓 警局相關",
-    color:"#ff1744"
-},
-
-{
-    keyword:"分局長",
-    type:"🚨 長官層級",
-    color:"#ff1744"
-},
-
-{
-    keyword:"服務處",
-    type:"🏛️ 服務處",
-    color:"#26c6da"
-},
-
-{
-    keyword:"議員",
-    type:"🏛️ 議員相關",
-    color:"#ff6d00"
-},
-
-{
-    keyword:"立委",
-    type:"🏛️ 立委相關",
-    color:"#ff6d00"
-}
-
-];
-
-// 🌿 資料庫
-
-let events = JSON.parse(
-    localStorage.getItem("lineEvents")
-) || [];
-
-const timeline =
-document.getElementById("timeline");
-
-// 🌿 AI分析
-
-function analyzeText(){
-
-    const text =
-    document.getElementById("inputText")
-    .value;
-
-    if(!text){
-
-        alert("請貼上LINE訊息");
-
-        return;
-    }
-
-    // 日期
-
-    const dateMatch =
-    text.match(
-        /\d{1,2}\/\d{1,2}|\d{1,2}月\d{1,2}日/g
-    );
-
-    // 時間
-
-    const timeMatch =
-    text.match(/\d{1,2}[:：]\d{2}/g);
-
-    let date =
-    dateMatch
-    ?
-    dateMatch[0]
-    :
-    "未指定日期";
-
-    let time =
-    timeMatch
-    ?
-    timeMatch[0]
-    :
-    "未指定時間";
-
-    let month =
-    parseInt(
-        date.split(/[\/月]/)[0]
-    );
-
-    let day =
-    parseInt(
-        date.match(/\d{1,2}(?=日|$)/)
-    );
-
-    // AI分類
-
-    let foundType = "📌 一般事件";
-
-    let foundColor = "#00c853";
-
-    smartTypes.forEach(t=>{
-
-        if(text.includes(t.keyword)){
-
-            foundType = t.type;
-
-            foundColor = t.color;
-        }
-    });
-
-    // 加入資料庫
-
-    events.unshift({
-
-        date,
-        time,
-        month,
-        day,
-        type:foundType,
-        color:foundColor,
-        note:text
-    });
-
-    // 去重複
-
-    events = events.filter(
-        (v,i,a)=>
-
-        i===a.findIndex(t=>
-
-            t.date===v.date &&
-            t.time===v.time &&
-            t.note===v.note
-        )
-    );
-
-    // 儲存
-
-    localStorage.setItem(
-        "lineEvents",
-        JSON.stringify(events)
-    );
-
-    document.getElementById("inputText")
-    .value = "";
-
-    renderEvents();
-}
-
-// 🌿 顯示事件
-
-function renderEvents(){
-
-    const keyword =
-    document.getElementById("searchInput")
-    .value
-    .toLowerCase();
-
-    timeline.innerHTML = "";
-
-    let filtered =
-    events.filter(e=>
-
-        e.date.toLowerCase().includes(keyword)
-        ||
-
-        e.type.toLowerCase().includes(keyword)
-        ||
-
-        e.note.toLowerCase().includes(keyword)
-    );
-
-    // 排序
-
-    filtered.sort((a,b)=>{
-
-        if(a.month!==b.month){
-
-            return a.month-b.month;
-        }
-
-        return a.day-b.day;
-    });
-
-    // 月份群組
-
-    let grouped = {};
-
-    filtered.forEach(e=>{
-
-        if(!grouped[e.month]){
-
-            grouped[e.month] = [];
-        }
-
-        grouped[e.month].push(e);
-    });
-
-    // UI
-
-    for(let month in grouped){
-
-        timeline.innerHTML += `
-
-        <div class="month-title">
-            📅 ${month} 月
-        </div>
-        `;
-
-        grouped[month].forEach(e=>{
-
-            timeline.innerHTML += `
-
-            <div
-            class="event-card"
-
-            style="
-            border-left:
-            8px solid ${e.color};
-            ">
-
-                <div class="event-date">
-                    ${e.date}
-                </div>
-
-                <div class="event-time">
-                    🕒 ${e.time}
-                </div>
-
-                <div class="event-type">
-                    ${e.type}
-                </div>
-
-                <div class="event-note">
-                    ${e.note}
-                </div>
-
-            </div>
-            `;
+    const smartTypes = [
+        { keyword: "市長", type: "🔴 市長行程", color: "#ff5252" },
+        { keyword: "VIP", type: "🟣 VIP貴賓", color: "#9c27b0" },
+        { keyword: "記者會", type: "🟠 記者會", color: "#ff9800" },
+        { keyword: "拍攝", type: "🔵 攝影採訪", color: "#2979ff" },
+        { keyword: "攝影", type: "🔵 攝影採訪", color: "#2979ff" },
+        { keyword: "議員", type: "🏛️ 議會相關", color: "#ff6d00" },
+        { keyword: "導覽", type: "🟢 導覽需求", color: "#00c853" }
+    ];
+
+    let events = JSON.parse(localStorage.getItem("lineEvents")) || [];
+
+    function analyzeText() {
+        const text = document.getElementById("inputText").value.trim();
+        if (!text) return alert("請輸入內容");
+
+        // 1. 提取日期 (支援 M/D, M月D日)
+        const dateMatch = text.match(/(\d{1,2})[\/\.月](\d{1,2})/);
+        // 2. 提取時間 (支援 HH:mm)
+        const timeMatch = text.match(/(\d{1,2})[:：](\d{2})/);
+
+        let month = dateMatch ? parseInt(dateMatch[1]) : (new Date().getMonth() + 1);
+        let day = dateMatch ? parseInt(dateMatch[2]) : new Date().getDate();
+        let time = timeMatch ? timeMatch[0] : "全天";
+
+        // 計算星期
+        const currentYear = new Date().getFullYear();
+        const dateObj = new Date(currentYear, month - 1, day);
+        const weekdays = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
+        let weekday = weekdays[dateObj.getDay()];
+
+        // 3. AI 分類
+        let type = "📌 一般事件";
+        let color = "#00c853";
+        smartTypes.forEach(t => {
+            if (text.includes(t.keyword)) {
+                type = t.type;
+                color = t.color;
+            }
         });
+
+        const newEvent = {
+            id: Date.now(),
+            month, day, weekday, time, type, color,
+            note: text,
+            fullDate: `${month}/${day}`
+        };
+
+        events.push(newEvent);
+        saveAndRender();
+        document.getElementById("inputText").value = "";
     }
-}
 
-// 🌿 清除全部
-
-function clearAll(){
-
-    if(confirm("確定清除全部資料？")){
-
-        localStorage.removeItem(
-            "lineEvents"
-        );
-
-        events = [];
-
+    function saveAndRender() {
+        // 排序：先比月份，再比日期，最後比時間
+        events.sort((a, b) => a.month !== b.month ? a.month - b.month : a.day - b.day);
+        localStorage.setItem("lineEvents", JSON.stringify(events));
         renderEvents();
     }
-}
 
-// 🌿 啟動
+    function renderEvents() {
+        const keyword = document.getElementById("searchInput").value.toLowerCase();
+        const timeline = document.getElementById("timeline");
+        timeline.innerHTML = "";
 
-renderEvents();
+        const filtered = events.filter(e => e.note.toLowerCase().includes(keyword) || e.type.toLowerCase().includes(keyword));
 
+        // 月份分組顯示
+        let currentMonth = -1;
+        filtered.forEach(e => {
+            if (e.month !== currentMonth) {
+                currentMonth = e.month;
+                const mTitle = document.createElement('div');
+                mTitle.className = 'month-title';
+                mTitle.innerText = `📅 ${currentMonth}月`;
+                timeline.appendChild(mTitle);
+            }
+
+            const item = document.createElement('div');
+            item.className = 'event-item';
+            item.innerHTML = `
+                <div class="date-box" style="border-top-color: ${e.color}">
+                    <div class="date-day">${e.day}</div>
+                    <div class="date-weekday">${e.weekday}</div>
+                </div>
+                <div class="event-content">
+                    <div class="event-header">
+                        <span class="event-time">🕒 ${e.time}</span>
+                        <span class="event-tag" style="color:${e.color}">${e.type}</span>
+                    </div>
+                    <div class="event-note">${e.note}</div>
+                </div>
+            `;
+            timeline.appendChild(item);
+        });
+    }
+
+    function clearAll() {
+        if (confirm("確定要清空所有排程嗎？")) {
+            events = [];
+            saveAndRender();
+        }
+    }
+
+    renderEvents();
 </script>
 
 </body>
