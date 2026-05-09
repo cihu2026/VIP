@@ -9,7 +9,7 @@ initial-scale=1.0,
 maximum-scale=1.0,
 user-scalable=no">
 
-<title>🌿 AI 月曆整理系統</title>
+<title>🌿 AI 半年事件資料庫</title>
 
 <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 
@@ -20,7 +20,6 @@ user-scalable=no">
     padding:0;
     box-sizing:border-box;
     font-family:"Noto Sans TC",sans-serif;
-    box-sizing:border-box;
 }
 
 body{
@@ -41,6 +40,7 @@ body{
     opacity:.7;
     margin-top:8px;
     margin-bottom:25px;
+    line-height:1.6;
 }
 
 .card{
@@ -58,6 +58,13 @@ body{
     background:#2b3240;
     color:white;
     font-size:17px;
+}
+
+.preview{
+    width:100%;
+    border-radius:20px;
+    margin-top:15px;
+    display:none;
 }
 
 .btn{
@@ -92,46 +99,11 @@ body{
     display:none;
 }
 
-.calendar{
-
-    display:grid;
-
-    grid-template-columns:
-    repeat(7,1fr);
-
-    gap:10px;
-}
-
-.day{
-
-    background:#1e2633;
-
-    border-radius:18px;
-
-    min-height:90px;
-
-    padding:10px;
-
-    position:relative;
-}
-
-.day-number{
-    font-size:18px;
-    font-weight:900;
-}
-
-.dot{
-
-    width:12px;
-    height:12px;
-
-    border-radius:50%;
-
-    margin-top:8px;
-}
-
-.event-list{
+.month-title{
     margin-top:20px;
+    margin-bottom:12px;
+    font-size:28px;
+    font-weight:900;
 }
 
 .event-card{
@@ -142,7 +114,7 @@ body{
 
     border-radius:20px;
 
-    margin-top:15px;
+    margin-top:14px;
 }
 
 .event-date{
@@ -150,16 +122,33 @@ body{
     font-weight:900;
 }
 
-.event-detail{
-    margin-top:10px;
-    line-height:1.8;
+.event-time{
+    margin-top:8px;
+    font-size:18px;
+    opacity:.9;
 }
 
-.preview{
+.event-type{
+    margin-top:10px;
+    font-size:18px;
+    font-weight:800;
+}
+
+.event-detail{
+    margin-top:10px;
+    line-height:1.7;
+    opacity:.85;
+}
+
+.search{
     width:100%;
-    border-radius:20px;
-    margin-top:15px;
-    display:none;
+    padding:16px;
+    border:none;
+    border-radius:18px;
+    background:#11151c;
+    color:white;
+    margin-top:10px;
+    font-size:16px;
 }
 
 .footer{
@@ -176,11 +165,11 @@ body{
 <body>
 
 <div class="title">
-🌿 AI 月曆整理系統
+🌿 AI 半年事件資料庫
 </div>
 
 <div class="sub">
-LINE截圖 → AI分析 → 自動整理整月事件
+LINE截圖 → OCR → AI整理 → 半年事件時間軸
 </div>
 
 <div class="card">
@@ -207,7 +196,7 @@ onclick="scanImage()">
 class="btn red"
 onclick="clearAll()">
 
-🗑️ 清除全部
+🗑️ 清除全部資料
 
 </button>
 
@@ -223,56 +212,119 @@ id="loading">
 
 <div class="card">
 
-<h2>
-📅 本月事件
-</h2>
+<input
+type="text"
+id="searchInput"
+class="search"
+placeholder="🔍 搜尋日期 / VIP / 市長 / 攝影..."
 
-<br>
-
-<div
-class="calendar"
-id="calendar">
-
-</div>
+onkeyup="renderEvents()">
 
 </div>
 
 <div class="card">
 
 <h2>
-📌 特殊事件列表
+📅 半年事件時間軸
 </h2>
 
-<div
-class="event-list"
-id="eventList">
-
-</div>
+<div id="timeline"></div>
 
 </div>
 
 <div class="footer">
-AI Calendar Dashboard PRO
+AI Timeline Dashboard PRO
 </div>
 
 <script>
 
-// 🌿 AI關鍵字
+// 🌿 AI關鍵字分類
 
-const smartKeywords = [
+const smartTypes = [
 
-"警局",
-"分局長",
-"服務處",
-"立委",
-"議員",
-"長官",
-"外加",
-"獨立帶",
-"VIP",
-"貴賓",
-"加梯",
-"保留"
+{
+    keyword:"市長",
+    type:"🔴 市長/VIP",
+    color:"#ff5252"
+},
+
+{
+    keyword:"VIP",
+    type:"🟣 VIP",
+    color:"#9c27b0"
+},
+
+{
+    keyword:"貴賓",
+    type:"🟣 VIP",
+    color:"#9c27b0"
+},
+
+{
+    keyword:"攝影",
+    type:"🔵 攝影活動",
+    color:"#2979ff"
+},
+
+{
+    keyword:"拍攝",
+    type:"🔵 拍攝活動",
+    color:"#2979ff"
+},
+
+{
+    keyword:"記者會",
+    type:"🟠 記者會",
+    color:"#ff9800"
+},
+
+{
+    keyword:"導覽",
+    type:"🟢 導覽需求",
+    color:"#00c853"
+},
+
+{
+    keyword:"KOL",
+    type:"🟡 KOL活動",
+    color:"#ffd600"
+},
+
+{
+    keyword:"KOC",
+    type:"🟡 KOC活動",
+    color:"#ffd600"
+},
+
+{
+    keyword:"警局",
+    type:"🚓 警局相關",
+    color:"#ff1744"
+},
+
+{
+    keyword:"分局長",
+    type:"🚨 長官層級",
+    color:"#ff1744"
+},
+
+{
+    keyword:"服務處",
+    type:"🏛️ 服務處",
+    color:"#26c6da"
+},
+
+{
+    keyword:"議員",
+    type:"🏛️ 議員相關",
+    color:"#ff6d00"
+},
+
+{
+    keyword:"立委",
+    type:"🏛️ 立委相關",
+    color:"#ff6d00"
+}
 
 ];
 
@@ -285,82 +337,14 @@ document.getElementById("preview");
 const loading =
 document.getElementById("loading");
 
-const calendar =
-document.getElementById("calendar");
-
-const eventList =
-document.getElementById("eventList");
+const timeline =
+document.getElementById("timeline");
 
 // 🌿 資料庫
 
 let events = JSON.parse(
-    localStorage.getItem("calendarEvents")
+    localStorage.getItem("timelineEvents")
 ) || [];
-
-// 🌿 月曆初始化
-
-function renderCalendar(){
-
-    calendar.innerHTML = "";
-
-    for(let i=1;i<=31;i++){
-
-        let hasEvent =
-        events.some(e=>e.day==i);
-
-        calendar.innerHTML += `
-
-        <div class="day">
-
-            <div class="day-number">
-                ${i}
-            </div>
-
-            ${
-                hasEvent
-                ?
-                `<div class="dot"
-                style="background:#ff5252"></div>`
-                :
-                ""
-            }
-
-        </div>
-        `;
-    }
-}
-
-// 🌿 事件列表
-
-function renderEvents(){
-
-    eventList.innerHTML = "";
-
-    events.sort((a,b)=>a.day-b.day);
-
-    events.forEach(e=>{
-
-        eventList.innerHTML += `
-
-        <div class="event-card">
-
-            <div class="event-date">
-                📅 ${e.date}
-            </div>
-
-            <div class="event-detail">
-
-                🕒 ${e.time}
-                <br><br>
-
-                ⚠️ ${e.type}
-
-            </div>
-
-        </div>
-        `;
-    });
-}
 
 // 🌿 預覽圖片
 
@@ -434,87 +418,188 @@ function analyzeAI(text){
 
     // 日期
 
-    const dateMatch =
+    const dates =
     text.match(
         /\d{1,2}\/\d{1,2}|\d{1,2}月\d{1,2}日/g
-    );
+    ) || [];
 
     // 時間
 
-    const timeMatch =
-    text.match(/\d{1,2}[:：]\d{2}/g);
+    const times =
+    text.match(/\d{1,2}[:：]\d{2}/g) || [];
 
-    if(!dateMatch){
+    smartTypes.forEach(type=>{
 
-        alert("AI找不到日期");
+        if(text.includes(type.keyword)){
 
-        return;
-    }
+            dates.forEach((date,index)=>{
 
-    let date =
-    dateMatch[0];
+                const month =
+                parseInt(date.split(/[\/月]/)[0]);
 
-    let day =
-    parseInt(
-        date.match(/\d{1,2}$/)
-    );
+                const day =
+                parseInt(date.match(/\d{1,2}(?=日|$)/));
 
-    let time =
-    timeMatch
-    ?
-    timeMatch[0]
-    :
-    "未找到";
+                events.unshift({
 
-    smartKeywords.forEach(k=>{
+                    month,
+                    day,
+                    date,
 
-        if(text.includes(k)){
+                    time:
+                    times[index]
+                    || "未指定",
 
-            events.unshift({
+                    type:
+                    type.type,
 
-                date:date,
+                    keyword:
+                    type.keyword,
 
-                day:day,
+                    color:
+                    type.color,
 
-                time:time,
-
-                type:k
+                    raw:text
+                });
             });
         }
     });
 
+    // 🌿 去重複
+
+    events = events.filter(
+        (v,i,a)=>
+
+        i===a.findIndex(t=>
+
+            t.date===v.date &&
+            t.type===v.type &&
+            t.time===v.time
+        )
+    );
+
     // 🌿 儲存
 
     localStorage.setItem(
-        "calendarEvents",
+        "timelineEvents",
         JSON.stringify(events)
     );
 
-    renderCalendar();
-
     renderEvents();
 }
 
-// 🌿 清除
+// 🌿 顯示事件
+
+function renderEvents(){
+
+    const keyword =
+    document.getElementById("searchInput")
+    .value
+    .toLowerCase();
+
+    timeline.innerHTML = "";
+
+    let filtered =
+    events.filter(e=>
+
+        e.date.toLowerCase().includes(keyword)
+        ||
+
+        e.type.toLowerCase().includes(keyword)
+        ||
+
+        e.keyword.toLowerCase().includes(keyword)
+    );
+
+    // 🌿 排序
+
+    filtered.sort((a,b)=>{
+
+        if(a.month!==b.month){
+
+            return a.month-b.month;
+        }
+
+        return a.day-b.day;
+    });
+
+    // 🌿 月份群組
+
+    let grouped = {};
+
+    filtered.forEach(e=>{
+
+        if(!grouped[e.month]){
+
+            grouped[e.month] = [];
+        }
+
+        grouped[e.month].push(e);
+    });
+
+    // 🌿 UI
+
+    for(let month in grouped){
+
+        timeline.innerHTML += `
+
+        <div class="month-title">
+            📅 ${month} 月
+        </div>
+        `;
+
+        grouped[month].forEach(e=>{
+
+            timeline.innerHTML += `
+
+            <div
+            class="event-card"
+
+            style="
+            border-left:
+            8px solid ${e.color};
+            ">
+
+                <div class="event-date">
+                    ${e.date}
+                </div>
+
+                <div class="event-time">
+                    🕒 ${e.time}
+                </div>
+
+                <div class="event-type">
+                    ${e.type}
+                </div>
+
+                <div class="event-detail">
+                    關鍵字：
+                    ${e.keyword}
+                </div>
+
+            </div>
+            `;
+        });
+    }
+}
+
+// 🌿 清除全部
 
 function clearAll(){
 
-    localStorage.removeItem(
-        "calendarEvents"
-    );
+    if(confirm("確定清除全部資料？")){
 
-    events = [];
+        localStorage.removeItem(
+            "timelineEvents"
+        );
 
-    renderCalendar();
+        events = [];
 
-    renderEvents();
-
-    alert("已清除全部資料");
+        renderEvents();
+    }
 }
 
 // 🌿 啟動
-
-renderCalendar();
 
 renderEvents();
 
