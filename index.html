@@ -66,7 +66,7 @@
 <body>
 
 <div class="header">
-    <div id="monthDisplay" class="month-title">2026 MAY</div>
+    <div id="monthDisplay" class="month-title">載入中...</div>
 </div>
 
 <div class="calendar-container">
@@ -76,13 +76,14 @@
     </div>
 </div>
 
-<div class="details-header">📌 <span id="selectedDateText">今日行程</span></div>
+<div class="details-header">📌 <span id="selectedDateText">載入中...</span></div>
 <div id="eventList" class="event-list"></div>
 <div id="sync-info">自動更新中...</div>
 
 <script>
+// 1. 修正 ID 引用方式
 const SHEET_ID = "1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg";
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 
 let allEvents = [];
 const now = new Date();
@@ -93,21 +94,33 @@ async function fetchData() {
         const csv = await res.text();
         allEvents = parseCSV(csv);
         renderCalendar(now.getFullYear(), now.getMonth());
-        // 預設顯示今天
+        // 預設選中今天
         showEvents(now.getMonth() + 1, now.getDate());
         document.getElementById('sync-info').innerText = `更新於: ${new Date().toLocaleTimeString()}`;
-    } catch (e) { console.error("Fetch Error"); }
+    } catch (e) { 
+        console.error("Fetch Error:", e);
+        document.getElementById('sync-info').innerText = "連線失敗，請檢查權限";
+    }
 }
 
 function parseCSV(csv) {
+    // 強化版解析：處理雙引號與換行
     const lines = csv.split(/\r?\n/).slice(1);
     const pattern = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
     return lines.map(line => {
         const c = line.split(pattern).map(v => v.replace(/^"|"$/g, '').trim());
-        // 欄位對應: [1]日期, [2]時間, [3]姓名, [4]活動, [5]人數, [6]電話, [7]備註
-        if(!c[1] || !c[1].includes("/")) return null;
-        const [m, d] = c[1].split("/").map(Number);
-        return { month: m, day: d, time: c[2], name: c[3], event: c[4], people: c[5], phone: c[6], note: c[7] || "" };
+        if(!c[1]) return null;
+        
+        // 嘗試解析日期 (支援 5/9 或 2026/5/9)
+        let m, d;
+        if(c[1].includes("/")) {
+            const parts = c[1].split("/");
+            if(parts.length === 3) { m = parseInt(parts[1]); d = parseInt(parts[2]); }
+            else { m = parseInt(parts[0]); d = parseInt(parts[1]); }
+        }
+        
+        if(!m || !d) return null;
+        return { month: m, day: d, time: c[2]||"", name: c[3]||"未命名", event: c[4]||"", people: c[5]||"0", phone: c[6]||"", note: c[7] || "" };
     }).filter(e => e);
 }
 
@@ -135,7 +148,7 @@ function renderCalendar(year, month) {
             const dots = document.createElement("div"); dots.className = "dots";
             dayEvents.slice(0,3).forEach(ev => {
                 const dot = document.createElement("div"); dot.className = "dot";
-                const t = (ev.event + ev.note).toUpperCase();
+                const t = (ev.event + ev.note + ev.name).toUpperCase();
                 if(t.includes("VIP") || t.includes("市長") || t.includes("貴賓")) dot.style.background = "var(--vip)";
                 else if(t.includes("待確認") || t.includes("暫定")) dot.style.background = "var(--pending)";
                 else dot.style.background = "#fff";
@@ -145,10 +158,9 @@ function renderCalendar(year, month) {
         }
 
         div.onclick = () => {
-            document.querySelectorAll('.day').forEach(el => el.style.borderColor = "transparent");
-            div.style.borderColor = "var(--accent)";
+            document.querySelectorAll('.day').forEach(el => el.style.border = "1px solid transparent");
+            div.style.border = "2px solid var(--accent)";
             showEvents(month + 1, d);
-            document.querySelector('.details-header').scrollIntoView({ behavior: 'smooth' });
         };
         cal.appendChild(div);
     }
@@ -167,7 +179,7 @@ function showEvents(m, d) {
     }
 
     filtered.forEach(e => {
-        const t = (e.event + e.note).toUpperCase();
+        const t = (e.event + e.note + e.name).toUpperCase();
         let statusClass = ""; let badge = "";
         if(t.includes("VIP") || t.includes("市長") || t.includes("貴賓")) { 
             statusClass = "vip"; badge = "<span class='badge' style='background:var(--vip)'>⭐ VIP</span>"; 
@@ -188,7 +200,7 @@ function showEvents(m, d) {
 }
 
 fetchData();
-setInterval(fetchData, 30000); // 30秒自動同步
+setInterval(fetchData, 60000); // 每一分鐘自動更新一次
 </script>
 </body>
 </html>
