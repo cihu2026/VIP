@@ -1,1 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+<title>🌿 特殊名額偵測助手</title>
+
+<script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    font-family:"Noto Sans TC",sans-serif;
+}
+
+body{
+    background:#0f1115;
+    color:white;
+    min-height:100vh;
+    padding:20px;
+}
+
+.title{
+    text-align:center;
+    font-size:30px;
+    font-weight:800;
+    margin-top:10px;
+}
+
+.sub{
+    text-align:center;
+    opacity:.7;
+    margin-top:8px;
+    margin-bottom:25px;
+}
+
+.card{
+    background:#1b1f27;
+    border-radius:24px;
+    padding:20px;
+    margin-bottom:20px;
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+.upload{
+    width:100%;
+    padding:18px;
+    border:none;
+    border-radius:18px;
+    background:#2b3240;
+    color:white;
+    font-size:17px;
+}
+
+.preview{
+    width:100%;
+    border-radius:20px;
+    margin-top:15px;
+    display:none;
+}
+
+.btn{
+    width:100%;
+    margin-top:15px;
+    padding:18px;
+    border:none;
+    border-radius:20px;
+    background:linear-gradient(135deg,#00c853,#0091ea);
+    color:white;
+    font-size:20px;
+    font-weight:800;
+}
+
+.loading{
+    text-align:center;
+    margin-top:20px;
+    display:none;
+}
+
+.result{
+    margin-top:15px;
+    line-height:1.8;
+    white-space:pre-wrap;
+    font-size:16px;
+}
+
+.keyword{
+    display:inline-block;
+    background:#ff5252;
+    padding:6px 12px;
+    border-radius:999px;
+    margin:5px;
+    font-weight:700;
+}
+
+.ok{
+    background:#00c853;
+}
+
+textarea{
+    width:100%;
+    margin-top:15px;
+    background:#11151c;
+    color:white;
+    border:none;
+    border-radius:16px;
+    padding:15px;
+    min-height:180px;
+    font-size:14px;
+}
+
+.footer{
+    text-align:center;
+    opacity:.45;
+    margin-top:30px;
+    font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="title">🌿 特殊名額偵測助手</div>
+<div class="sub">手機截圖 → AI辨識 → 自動抓特殊名額</div>
+
+<div class="card">
+
+<input type="file" id="imageInput" accept="image/*" class="upload">
+
+<img id="preview" class="preview">
+
+<button class="btn" onclick="scanImage()">
+🔍 開始辨識
+</button>
+
+<div class="loading" id="loading">
+⏳ AI辨識中...
+</div>
+
+<div class="result" id="result"></div>
+
+<textarea id="fullText" placeholder="OCR辨識文字會顯示在這裡"></textarea>
+
+</div>
+
+<div class="footer">
+OCR Powered by Tesseract.js
+</div>
+
+<script>
+
+const keywords = [
+"公務團",
+"立委",
+"議員",
+"貴賓",
+"VIP",
+"保留",
+"專案",
+"長官",
+"公關",
+"來賓"
+];
+
+const imageInput = document.getElementById("imageInput");
+const preview = document.getElementById("preview");
+
+imageInput.addEventListener("change", e => {
+
+    const file = e.target.files[0];
+
+    if(file){
+
+        const reader = new FileReader();
+
+        reader.onload = function(ev){
+
+            preview.src = ev.target.result;
+            preview.style.display = "block";
+        }
+
+        reader.readAsDataURL(file);
+    }
+});
+
+async function scanImage(){
+
+    const file = imageInput.files[0];
+
+    if(!file){
+        alert("請先上傳截圖");
+        return;
+    }
+
+    document.getElementById("loading").style.display = "block";
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("fullText").value = "";
+
+    const { data:{ text } } = await Tesseract.recognize(
+        file,
+        'chi_tra+eng',
+        {
+            logger:m=>console.log(m)
+        }
+    );
+
+    document.getElementById("loading").style.display = "none";
+
+    document.getElementById("fullText").value = text;
+
+    let found = [];
+
+    keywords.forEach(k => {
+        if(text.includes(k)){
+            found.push(k);
+        }
+    });
+
+    let html = "";
+
+    if(found.length > 0){
+
+        html += "⚠️ 偵測到特殊名額：<br><br>";
+
+        found.forEach(f => {
+            html += `<span class="keyword">${f}</span>`;
+        });
+
+    }else{
+
+        html += `<span class="keyword ok">未發現特殊關鍵字</span>`;
+    }
+
+    html += "<br><br>";
+
+    const timeMatch = text.match(/\d{1,2}[:：]\d{2}/g);
+
+    if(timeMatch){
+
+        html += "🕒 偵測到時段：<br>";
+
+        timeMatch.forEach(t => {
+            html += `<span class="keyword ok">${t}</span>`;
+        });
+    }
+
+    document.getElementById("result").innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>
