@@ -2,227 +2,107 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>📌 後慈湖特殊行程看板</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📌 後慈湖行程監控系統</title>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap');
-
-    *{
-        margin:0;
-        padding:0;
-        box-sizing:border-box;
-        font-family: "SF Pro Display", "Noto Sans TC", sans-serif;
-    }
-
-    body{
-        background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
-        color:#e2e8f0;
-        padding:20px;
-        min-height:100vh;
-    }
-
-    .header-section { text-align: center; margin-bottom: 30px; }
-    .title{
-        font-size:36px; font-weight:900;
-        background: linear-gradient(to right, #fff, #94a3b8);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        letter-spacing: 2px;
-    }
-
-    .card{
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 30px;
-        padding: 25px;
-        margin-bottom: 25px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-    }
-
-    /* 今日狀態 */
-    .today-status{
-        padding:25px; border-radius:24px;
-        font-size:28px; font-weight:900; text-align:center;
-        transition: 1s;
-    }
-
-    /* 日曆樣式 */
-    .calendar{ display:grid; grid-template-columns: repeat(7, 1fr); gap:10px; }
-    
-    .day{
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.05);
-        border-radius:15px; min-height:80px; padding:10px;
-        transition: all 0.5s ease;
-    }
-
-    .is-past { opacity: 0.15; transform: scale(0.95); filter: grayscale(1); }
-    .is-today { border: 2px solid #60a5fa; background: rgba(96, 165, 250, 0.1); }
-    
-    .day-number{ font-size:14px; font-weight:700; margin-bottom: 5px; color: #94a3b8; }
-    .is-today .day-number { color: #60a5fa; }
-
-    .event-dot {
-        height: 6px; width: 6px; border-radius: 50%; display: inline-block; margin-right: 3px;
-    }
-
-    /* 詳細資訊區塊 */
-    #detail { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
-
-    .detail-card{
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        padding:20px; border-radius:22px;
-        animation: fadeIn 0.5s ease forwards;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .info-row { font-size: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
-    .info-label { opacity: 0.6; min-width: 25px; }
-    .badge{ padding:4px 12px; border-radius:8px; font-size:12px; font-weight:900; margin-left:10px; }
-
-    @media (max-width: 768px) { .calendar { grid-template-columns: repeat(4, 1fr); } }
+    /* ... (保留之前的 CSS 樣式) ... */
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+    body{ background: #0f172a; color:#e2e8f0; font-family: "Noto Sans TC", sans-serif; padding:20px; }
+    .card{ background: rgba(255,255,255,0.05); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+    .today-status { text-align: center; font-size: 24px; font-weight: 900; padding: 15px; border-radius: 15px; }
+    .detail-card { background: rgba(255,255,255,0.08); margin-bottom: 10px; padding: 15px; border-radius: 12px; border-left: 5px solid #3b82f6; }
+    .badge { padding: 2px 8px; border-radius: 5px; font-size: 12px; float: right; }
+    .info-row { margin: 5px 0; font-size: 15px; }
 </style>
 </head>
 <body>
 
-<div class="header-section">
-    <div class="title">📌 後慈湖行程監控</div>
+<div class="card">
+    <div id="todayStatus" class="today-status">🔄 正在連線至試算表...</div>
 </div>
 
 <div class="card">
-    <div id="todayStatus" class="today-status">⏳ 檢查行程中...</div>
-</div>
-
-<div class="card">
-    <h2>📆 月份概覽</h2>
-    <div class="calendar" id="calendar"></div>
-</div>
-
-<div class="card">
-    <h2>🔔 待辦行程 (過期自動隱藏)</h2>
-    <div id="detail"></div>
+    <h2>🔔 即將到來行程 (自動過濾過期項目)</h2>
+    <div id="detail">載入中...</div>
 </div>
 
 <script>
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg/export?format=csv";
+// 自動將編輯連結轉為 CSV 匯出連結
+const SHEET_ID = "1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg";
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
 
-function getType(text = ""){
-    const t = text.toUpperCase();
-    if(t.includes("市長") || t.includes("VIP") || t.includes("貴賓")) return { label:"VIP", color:"#ef4444" };
-    if(t.includes("拍攝") || t.includes("攝影")) return { label:"拍攝", color:"#a855f7" };
-    if(t.includes("導覽")) return { label:"導覽", color:"#22c55e" };
-    return { label:"活動", color:"#3b82f6" };
-}
-
-async function loadSheet(){
-    try{
-        const res = await fetch(SHEET_URL + "&cachebust=" + new Date().getTime());
-        const csv = await res.text();
-        parseCSV(csv);
-    }catch(err){
-        document.getElementById("todayStatus").innerHTML = "❌ 連線異常";
+async function fetchData() {
+    try {
+        const response = await fetch(CSV_URL);
+        const data = await response.text();
+        processData(data);
+    } catch (error) {
+        document.getElementById("todayStatus").innerHTML = "❌ 無法讀取資料，請檢查共用權限";
     }
 }
 
-function parseCSV(csv){
-    const rows = csv.split("\n").slice(1);
-    let events = [];
-    rows.forEach(r=>{
-        const cols = r.split(",");
-        if(cols.length >= 8) {
-            events.push({ 
-                date: cols[1].trim(), 
-                time: cols[2].trim(), 
-                name: cols[3].trim(), 
-                event: cols[4].trim(), 
-                people: cols[5].trim(), 
-                phone: cols[6].trim(), 
-                note: cols[7].trim() 
-            });
+function processData(csvText) {
+    const rows = csvText.split('\n').slice(1); // 略過標題列
+    const detailContainer = document.getElementById("detail");
+    const statusBox = document.getElementById("todayStatus");
+    const now = new Date();
+    const todayStr = `${now.getMonth() + 1}/${now.getDate()}`;
+    
+    let htmlContent = "";
+    let count = 0;
+
+    rows.forEach(row => {
+        const cols = row.split(',');
+        if (cols.length < 5) return;
+
+        const dateVal = cols[1].trim();   // B欄: 日期
+        const timeVal = cols[2].trim();   // C欄: 時間
+        const eventName = cols[4].trim(); // E欄: 行程名稱
+        const note = cols[7] ? cols[7].trim() : "";
+
+        // 判斷是否為過去的行程
+        const eventDate = new Date(`${now.getFullYear()}/${dateVal}`);
+        const eventHour = parseInt(timeVal.split(':')[0]) || 0;
+        
+        // 清除日期時間對象，僅比對日期
+        const todayNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const targetDate = new Date(now.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+
+        const isPast = targetDate < todayNoon;
+        const isToday = targetDate.getTime() === todayNoon.getTime();
+        const isExpiredToday = isToday && eventHour < now.getHours();
+
+        // 核心邏輯：如果日期已過，或是今天的時間已過，就不顯示
+        if (!isPast && !isExpiredToday) {
+            count++;
+            const typeInfo = getTag(eventName + note);
+            htmlContent += `
+                <div class="detail-card" style="border-left-color: ${typeInfo.color}">
+                    <span class="badge" style="background:${typeInfo.color}">${typeInfo.label}</span>
+                    <div class="info-row"><b>📅 日期：</b>${dateVal} (${timeVal})</div>
+                    <div class="info-row"><b>📌 行程：</b>${eventName}</div>
+                    <div class="info-row"><b>👤 對象：</b>${cols[3]} (${cols[5]}人)</div>
+                    <div class="info-row"><b>📞 電話：</b>${cols[6]}</div>
+                    ${note ? `<div class="info-row"><b>📝 備註：</b>${note}</div>` : ''}
+                </div>`;
         }
     });
-    render(events);
+
+    detailContainer.innerHTML = htmlContent || "<div style='text-align:center; padding:20px; opacity:0.5;'>目前沒有待辦行程</div>";
+    statusBox.innerHTML = count > 0 ? `✅ 還有 ${count} 筆行程待處理` : "✅ 今日已無行程";
+    statusBox.style.background = count > 0 ? "#1e3a8a" : "#065f46";
 }
 
-function render(events){
-    const calendar = document.getElementById("calendar");
-    const detail = document.getElementById("detail");
-    const now = new Date();
-    const currentDay = now.getDate();
-    const currentHour = now.getHours();
-
-    calendar.innerHTML = "";
-    detail.innerHTML = "";
-    
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
-    let pendingTodayCount = 0;
-
-    for(let day=1; day<=daysInMonth; day++){
-        const isPastDay = day < currentDay;
-        const isToday = day === currentDay;
-        
-        const dayDiv = document.createElement("div");
-        dayDiv.className = `day ${isPastDay ? 'is-past' : ''} ${isToday ? 'is-today' : ''}`;
-        dayDiv.innerHTML = `<div class="day-number">${day}</div>`;
-
-        events.forEach(e=>{
-            // 解析日期 (格式假設為 5/9)
-            const match = e.date.match(/\d{1,2}\/(\d{1,2})/);
-            if(match && parseInt(match[1]) === day){
-                const info = getType(`${e.event} ${e.note}`);
-                const eventHour = parseInt(e.time.split(":")[0]) || 0;
-                
-                // 判斷邏輯：如果是昨天的行程，或今天的時間已過，則視為結束
-                const isFinished = isPastDay || (isToday && eventHour < currentHour);
-
-                // 日曆點點：結束變灰，未結束顯示分類顏色
-                dayDiv.innerHTML += `<span class="event-dot" style="background:${isFinished ? '#475569' : info.color}"></span>`;
-
-                // 只顯示「未結束」的行程在詳細清單中
-                if (!isFinished) {
-                    detail.innerHTML += `
-                        <div class="detail-card">
-                            <h3>
-                                <span>📅 ${e.date}</span>
-                                <span class="badge" style="background:${info.color}">${info.label}</span>
-                            </h3>
-                            <div class="info-row"><span class="info-label">🕒</span> <b>${e.time}</b></div>
-                            <div class="info-row"><span class="info-label">👤</span> ${e.name}</div>
-                            <div class="info-row"><span class="info-label">📌</span> ${e.event}</div>
-                            <div class="info-row"><span class="info-label">📞</span> ${e.phone}</div>
-                            <div class="info-row"><span class="info-label">📝</span> ${e.note}</div>
-                        </div>
-                    `;
-                    if(isToday) pendingTodayCount++;
-                }
-            }
-        });
-        calendar.appendChild(dayDiv);
-    }
-
-    // 更新狀態列
-    const status = document.getElementById("todayStatus");
-    if(pendingTodayCount > 0){
-        status.innerHTML = `📢 今日尚有 ${pendingTodayCount} 場待辦行程`;
-        status.style.background = "linear-gradient(135deg, #1e40af, #3b82f6)";
-    } else {
-        status.innerHTML = "✅ 今日行程已全部結束或無行程";
-        status.style.background = "linear-gradient(135deg, #15803d, #22c55e)";
-    }
-    
-    if(detail.innerHTML === "") {
-        detail.innerHTML = "<div style='opacity:0.5; grid-column: 1/-1; text-align:center; padding:40px;'>目前沒有即將到來的行程</div>";
-    }
+function getTag(text) {
+    if (text.includes("VIP") || text.includes("市長") || text.includes("貴賓")) return {label:"VIP", color:"#ef4444"};
+    if (text.includes("拍攝")) return {label:"拍攝", color:"#a855f7"};
+    return {label:"一般", color:"#3b82f6"};
 }
 
-loadSheet();
-// 每 60 秒抓取一次最新資料
-setInterval(loadSheet, 60000); 
+// 初始載入
+fetchData();
+// 每 5 分鐘自動刷新一次
+setInterval(fetchData, 300000);
 </script>
 </body>
 </html>
