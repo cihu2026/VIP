@@ -2,13 +2,19 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>🌿 特殊名額偵測助手</title>
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
+
+<title>🌿 今日團體 AI 儀表板</title>
 
 <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
+
 *{
     margin:0;
     padding:0;
@@ -26,8 +32,8 @@ body{
 
 .title{
     text-align:center;
-    font-size:30px;
-    font-weight:800;
+    font-size:32px;
+    font-weight:900;
     margin-top:10px;
 }
 
@@ -70,7 +76,11 @@ body{
     padding:18px;
     border:none;
     border-radius:20px;
-    background:linear-gradient(135deg,#00c853,#0091ea);
+    background:linear-gradient(
+        135deg,
+        #00c853,
+        #0091ea
+    );
     color:white;
     font-size:20px;
     font-weight:800;
@@ -85,7 +95,6 @@ body{
 .result{
     margin-top:15px;
     line-height:1.8;
-    white-space:pre-wrap;
     font-size:16px;
 }
 
@@ -114,63 +123,124 @@ textarea{
     font-size:14px;
 }
 
+.group-card{
+
+    background:#1e2633;
+
+    padding:18px;
+
+    border-radius:20px;
+
+    margin-top:15px;
+}
+
+.group-time{
+    font-size:28px;
+    font-weight:900;
+}
+
+.group-type{
+    margin-top:8px;
+    font-size:18px;
+}
+
 .footer{
     text-align:center;
     opacity:.45;
     margin-top:30px;
     font-size:13px;
 }
+
 </style>
+
 </head>
 
 <body>
 
-<div class="title">🌿 特殊名額偵測助手</div>
-<div class="sub">手機截圖 → AI辨識 → 自動抓特殊名額</div>
+<div class="title">
+🌿 今日團體 AI 儀表板
+</div>
+
+<div class="sub">
+手機截圖 → AI辨識 → 自動建立團體行事曆
+</div>
 
 <div class="card">
 
-<input type="file" id="imageInput" accept="image/*" class="upload">
+<input
+type="file"
+id="imageInput"
+accept="image/*"
+class="upload">
 
-<img id="preview" class="preview">
+<img
+id="preview"
+class="preview">
 
-<button class="btn" onclick="scanImage()">
-🔍 開始辨識
+<button
+class="btn"
+onclick="scanImage()">
+
+🔍 開始 AI 辨識
+
 </button>
 
-<div class="loading" id="loading">
-⏳ AI辨識中...
+<div
+class="loading"
+id="loading">
+
+⏳ AI OCR 辨識中...
+
 </div>
 
-<div class="result" id="result"></div>
+</div>
 
-<textarea id="fullText" placeholder="OCR辨識文字會顯示在這裡"></textarea>
+<div class="card">
+
+<div
+class="result"
+id="result">
+
+</div>
+
+<textarea
+id="fullText"
+placeholder="OCR辨識文字會顯示在這裡">
+
+</textarea>
 
 </div>
 
 <div class="footer">
-OCR Powered by Tesseract.js
+AI OCR Dashboard PRO
 </div>
 
 <script>
 
 const keywords = [
-"公務團",
-"立委",
-"議員",
-"貴賓",
-"VIP",
-"保留",
-"專案",
-"長官",
-"公關",
-"來賓"
+
+    "公務團",
+    "立委",
+    "議員",
+    "貴賓",
+    "VIP",
+    "保留",
+    "專案",
+    "長官",
+    "公關",
+    "來賓"
+
 ];
 
-const imageInput = document.getElementById("imageInput");
-const preview = document.getElementById("preview");
+const imageInput =
+document.getElementById("imageInput");
 
-imageInput.addEventListener("change", e => {
+const preview =
+document.getElementById("preview");
+
+// 🌿 預覽圖片
+
+imageInput.addEventListener("change",e=>{
 
     const file = e.target.files[0];
 
@@ -178,129 +248,199 @@ imageInput.addEventListener("change", e => {
 
         const reader = new FileReader();
 
-        reader.onload = function(ev){
+        reader.onload = ev => {
 
             preview.src = ev.target.result;
+
             preview.style.display = "block";
-        }
+        };
 
         reader.readAsDataURL(file);
     }
 });
 
+// 🌿 AI OCR 辨識
+
 async function scanImage(){
 
-    const file = imageInput.files[0];
+    const file =
+    imageInput.files[0];
 
     if(!file){
+
         alert("請先上傳截圖");
+
         return;
     }
 
-    document.getElementById("loading").style.display = "block";
-    document.getElementById("result").innerHTML = "";
-    document.getElementById("fullText").value = "";
+    document.getElementById("loading")
+    .style.display = "block";
 
-    const { data:{ text } } = await Tesseract.recognize(
-        file,
-        'chi_tra+eng',
-        {
-            logger:m=>console.log(m)
-        }
-    );
+    document.getElementById("result")
+    .innerHTML = "";
 
-    document.getElementById("loading").style.display = "none";
+    document.getElementById("fullText")
+    .value = "";
 
-    document.getElementById("fullText").value = text;
+    try{
 
-    let found = [];
+        const {
+            data:{ text }
+        } = await Tesseract.recognize(
 
-    keywords.forEach(k => {
-        if(text.includes(k)){
-            found.push(k);
-        }
-    });
+            file,
 
-    let html = "";
+            'chi_tra+eng',
 
-    if(found.length > 0){
+            {
+                logger:m=>console.log(m)
+            }
+        );
 
-        html += "⚠️ 偵測到特殊名額：<br><br>";
+        document.getElementById("loading")
+        .style.display = "none";
 
-        found.forEach(f => {
-            html += `<span class="keyword">${f}</span>`;
+        document.getElementById("fullText")
+        .value = text;
+
+        let found = [];
+
+        keywords.forEach(k=>{
+
+            if(text.includes(k)){
+
+                found.push(k);
+            }
         });
 
-    }else{
+        // 🌿 找時間
 
-        html += `<span class="keyword ok">未發現特殊關鍵字</span>`;
-    }
+        const timeMatch =
+        text.match(/\d{1,2}[:：]\d{2}/g);
 
-    html += "<br><br>";
+        let html = "";
 
-    const timeMatch = text.match(/\d{1,2}[:：]\d{2}/g);
+        // 🌿 關鍵字
 
-    if(timeMatch){
+        if(found.length > 0){
 
-        html += "🕒 偵測到時段：<br>";
+            html += `
+            <h2>
+            ⚠️ 偵測到特殊名額
+            </h2><br>
+            `;
 
-        timeMatch.forEach(t => {
-            html += `<span class="keyword ok">${t}</span>`;
-        });
-    }
+            found.forEach(f=>{
 
-    document.getElementById("result").innerHTML = html;
-}
+                html += `
+                <span class="keyword">
+                    ${f}
+                </span>
+                `;
+            });
 
-// 🌿 自動建立今日團體列表
+        }else{
 
-html += "<br><br><h3>📅 今日團體</h3>";
+            html += `
+            <span class="keyword ok">
+                未發現特殊關鍵字
+            </span>
+            `;
+        }
 
-if(timeMatch && found.length > 0){
+        // 🌿 時段
 
-    timeMatch.forEach((t,index)=>{
+        if(timeMatch){
 
-        const type = found[index] || "特殊團";
+            html += `
+            <br><br>
 
-        let color = "#00c853";
+            <h2>
+            🕒 偵測到時段
+            </h2><br>
+            `;
 
-        if(type.includes("VIP"))
-            color = "#2979ff";
+            timeMatch.forEach(t=>{
 
-        if(type.includes("議員"))
-            color = "#ff5252";
+                html += `
+                <span class="keyword ok">
+                    ${t}
+                </span>
+                `;
+            });
+        }
 
-        if(type.includes("公務"))
-            color = "#ff9800";
+        // 🌿 今日團體
 
         html += `
+        <br><br>
 
-        <div style="
-            background:#1e2633;
-            padding:16px;
-            border-radius:18px;
-            margin-top:12px;
-            border-left:8px solid ${color};
-        ">
-
-            <div style="
-                font-size:24px;
-                font-weight:900;
-            ">
-                ${t}
-            </div>
-
-            <div style="
-                margin-top:8px;
-                font-size:18px;
-            ">
-                ${type}
-            </div>
-
-        </div>
-
+        <h2>
+        📅 今日團體
+        </h2>
         `;
-    });
+
+        if(timeMatch){
+
+            timeMatch.forEach((t,index)=>{
+
+                const type =
+                found[index] || "特殊團";
+
+                let color = "#00c853";
+
+                if(type.includes("VIP"))
+                    color = "#2979ff";
+
+                if(type.includes("議員"))
+                    color = "#ff5252";
+
+                if(type.includes("公務"))
+                    color = "#ff9800";
+
+                html += `
+
+                <div
+                class="group-card"
+
+                style="
+                border-left:
+                8px solid ${color};
+                ">
+
+                    <div class="group-time">
+                        ${t}
+                    </div>
+
+                    <div class="group-type">
+                        ${type}
+                    </div>
+
+                </div>
+                `;
+            });
+
+        }else{
+
+            html += `
+            <div class="group-card">
+                未找到時間資料
+            </div>
+            `;
+        }
+
+        document.getElementById("result")
+        .innerHTML = html;
+
+    }catch(err){
+
+        console.error(err);
+
+        document.getElementById("loading")
+        .style.display = "none";
+
+        alert("OCR辨識失敗");
+    }
 }
 
 </script>
