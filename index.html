@@ -3,85 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>📌 後慈湖行程行政看板</title>
+    <title>CIHU SCHEDULE</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        
         :root {
             --bg: #0b0f1a;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
             --accent: #3b82f6;
             --vip: #f43f5e;
             --pending: #fbbf24;
+            --text-main: #ffffff;
+            --text-sub: #94a3b8;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
         }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: "Noto Sans TC", sans-serif; }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', "Noto Sans TC", sans-serif; }
+        
         body { 
-            background: radial-gradient(circle at top left, #1e293b 0%, var(--bg) 80%); 
-            color: #f1f5f9; padding: 15px; min-height: 100vh;
+            background: var(--bg); 
+            color: var(--text-main); 
+            padding: 20px; 
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Header */
-        .header { margin: 15px 0 20px; text-align: center; }
-        .month-title { font-size: 30px; font-weight: 900; background: linear-gradient(to bottom, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* 簡約標題區 */
+        .header { 
+            padding: 20px 5px 30px; 
+            text-align: left;
+        }
+        .header-sub {
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .month-title { 
+            font-size: 38px; 
+            font-weight: 900; 
+            letter-spacing: -1.5px;
+        }
 
-        /* Calendar Card */
+        /* 日曆區塊：極簡化 */
         .calendar-container {
-            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border); border-radius: 30px; padding: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 20px;
         }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-        .weekday { text-align: center; font-size: 14px; font-weight: 900; color: #64748b; padding-bottom: 10px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .weekday { 
+            text-align: center; font-size: 12px; font-weight: 700; 
+            color: var(--text-sub); padding-bottom: 15px; opacity: 0.5;
+        }
         .day { 
-            aspect-ratio: 1/1; background: rgba(255,255,255,0.02); border-radius: 15px; 
+            aspect-ratio: 1/1; border-radius: 12px; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-size: 18px; font-weight: 700; cursor: pointer; transition: 0.2s; border: 1px solid transparent;
+            font-size: 18px; font-weight: 500; cursor: pointer; transition: 0.2s;
         }
-        .day.today { background: rgba(59, 130, 246, 0.2); border-color: var(--accent); color: #60a5fa; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
-        .dots { display: flex; gap: 3px; margin-top: 4px; height: 6px; }
-        .dot { width: 6px; height: 6px; border-radius: 50%; }
+        .day:hover { background: rgba(255,255,255,0.05); }
+        .day.today { 
+            background: var(--accent); 
+            color: #fff; 
+            font-weight: 900;
+        }
+        
+        /* 行程點點 */
+        .dots { display: flex; gap: 3px; margin-top: 4px; }
+        .dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.3); }
+        .day.today .dot { background: #fff; }
 
-        /* Detail List */
-        .details-header { margin: 30px 0 15px; font-size: 24px; font-weight: 900; display: flex; align-items: center; gap: 10px; border-left: 6px solid var(--accent); padding-left: 15px; }
-        .event-list { display: flex; flex-direction: column; gap: 15px; padding-bottom: 80px; }
+        /* 行程清單標題 */
+        .details-header { 
+            margin: 40px 0 20px; 
+            font-size: 20px; 
+            font-weight: 900; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+        }
+        .details-header::before {
+            content: ''; width: 4px; height: 24px; background: var(--accent); border-radius: 2px;
+        }
+
+        /* 行程卡片：扁平化設計 */
+        .event-list { display: flex; flex-direction: column; gap: 12px; padding-bottom: 60px; }
         .event-card { 
-            background: var(--glass); border: 1px solid var(--glass-border); padding: 22px; border-radius: 25px;
-            position: relative; overflow: hidden; animation: fadeInUp 0.4s ease forwards;
+            background: var(--card-bg); 
+            border: 1px solid var(--card-border); 
+            padding: 20px; 
+            border-radius: 20px;
+            transition: transform 0.2s;
         }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .event-card::before { content: ''; position: absolute; left: 0; top: 0; width: 8px; height: 100%; background: var(--accent); }
-        .event-card.vip::before { background: var(--vip); box-shadow: 4px 0 15px rgba(244, 63, 94, 0.4); }
-        .event-card.pending::before { background: var(--pending); }
+        .event-card.vip { border-left: 4px solid var(--vip); }
+        .event-card.pending { border-left: 4px solid var(--pending); }
 
-        .time-tag { font-size: 18px; font-weight: 900; color: #94a3b8; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-        .name-row { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 5px; }
-        .info-row { font-size: 18px; color: #cbd5e1; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-        .note-box { margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 12px; font-size: 18px; color: #94a3b8; border: 1px solid rgba(255,255,255,0.05); }
-        .badge { padding: 3px 10px; border-radius: 8px; font-size: 14px; color: #fff; font-weight: 900; }
+        .time-tag { font-size: 14px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .name-row { font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+        .info-row { font-size: 16px; color: var(--text-sub); margin-bottom: 2px; }
         
-        #sync-info { position: fixed; bottom: 15px; right: 15px; font-size: 12px; opacity: 0.5; background: #000; padding: 5px 10px; border-radius: 10px; }
+        .note-box { 
+            margin-top: 15px; padding: 12px; background: rgba(255,255,255,0.02); 
+            border-radius: 10px; font-size: 15px; color: var(--text-sub); font-style: italic;
+        }
+        
+        .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 900; margin-left: 5px; vertical-align: middle; }
+
+        #sync-info { position: fixed; bottom: 20px; left: 20px; font-size: 10px; color: var(--text-sub); opacity: 0.4; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div id="monthDisplay" class="month-title">載入中...</div>
+    <div class="header-sub">Cihu Management</div>
+    <div id="monthDisplay" class="month-title">2026 MAY</div>
 </div>
 
 <div class="calendar-container">
     <div class="calendar-grid" id="calendar">
-        <div class="weekday">日</div><div class="weekday">一</div><div class="weekday">二</div>
-        <div class="weekday">三</div><div class="weekday">四</div><div class="weekday">五</div><div class="weekday">六</div>
+        <div class="weekday">S</div><div class="weekday">M</div><div class="weekday">T</div>
+        <div class="weekday">W</div><div class="weekday">T</div><div class="weekday">F</div><div class="weekday">S</div>
     </div>
 </div>
 
-<div class="details-header">📌 <span id="selectedDateText">載入中...</span></div>
+<div class="details-header"><span id="selectedDateText">Schedule</span></div>
 <div id="eventList" class="event-list"></div>
-<div id="sync-info">自動更新中...</div>
+<div id="sync-info">Waiting for sync...</div>
 
 <script>
-// 1. 修正 ID 引用方式
+// 修正後的 SHEET 設定
 const SHEET_ID = "1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg";
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 
@@ -94,40 +147,30 @@ async function fetchData() {
         const csv = await res.text();
         allEvents = parseCSV(csv);
         renderCalendar(now.getFullYear(), now.getMonth());
-        // 預設選中今天
         showEvents(now.getMonth() + 1, now.getDate());
-        document.getElementById('sync-info').innerText = `更新於: ${new Date().toLocaleTimeString()}`;
+        document.getElementById('sync-info').innerText = `LAST SYNC: ${new Date().toLocaleTimeString()}`;
     } catch (e) { 
-        console.error("Fetch Error:", e);
-        document.getElementById('sync-info').innerText = "連線失敗，請檢查權限";
+        document.getElementById('sync-info').innerText = "SYNC ERROR";
     }
 }
 
 function parseCSV(csv) {
-    // 強化版解析：處理雙引號與換行
     const lines = csv.split(/\r?\n/).slice(1);
     const pattern = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
     return lines.map(line => {
         const c = line.split(pattern).map(v => v.replace(/^"|"$/g, '').trim());
-        if(!c[1]) return null;
-        
-        // 嘗試解析日期 (支援 5/9 或 2026/5/9)
-        let m, d;
-        if(c[1].includes("/")) {
-            const parts = c[1].split("/");
-            if(parts.length === 3) { m = parseInt(parts[1]); d = parseInt(parts[2]); }
-            else { m = parseInt(parts[0]); d = parseInt(parts[1]); }
-        }
-        
-        if(!m || !d) return null;
-        return { month: m, day: d, time: c[2]||"", name: c[3]||"未命名", event: c[4]||"", people: c[5]||"0", phone: c[6]||"", note: c[7] || "" };
+        if(!c[1] || !c[1].includes("/")) return null;
+        const parts = c[1].split("/");
+        const m = parseInt(parts[parts.length-2]);
+        const d = parseInt(parts[parts.length-1]);
+        return { month: m, day: d, time: c[2]||"", name: c[3]||"", event: c[4]||"", people: c[5]||"", phone: c[6]||"", note: c[7] || "" };
     }).filter(e => e);
 }
 
 function renderCalendar(year, month) {
     const cal = document.getElementById("calendar");
-    const monthNames = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
-    document.getElementById("monthDisplay").innerText = `${year}年 ${monthNames[month]}`;
+    const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+    document.getElementById("monthDisplay").innerText = `${year} ${monthNames[month]}`;
     
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -151,15 +194,14 @@ function renderCalendar(year, month) {
                 const t = (ev.event + ev.note + ev.name).toUpperCase();
                 if(t.includes("VIP") || t.includes("市長") || t.includes("貴賓")) dot.style.background = "var(--vip)";
                 else if(t.includes("待確認") || t.includes("暫定")) dot.style.background = "var(--pending)";
-                else dot.style.background = "#fff";
                 dots.appendChild(dot);
             });
             div.appendChild(dots);
         }
 
         div.onclick = () => {
-            document.querySelectorAll('.day').forEach(el => el.style.border = "1px solid transparent");
-            div.style.border = "2px solid var(--accent)";
+            document.querySelectorAll('.day').forEach(el => el.style.boxShadow = "none");
+            if(!div.classList.contains('today')) div.style.boxShadow = "inset 0 0 0 2px var(--accent)";
             showEvents(month + 1, d);
         };
         cal.appendChild(div);
@@ -168,13 +210,13 @@ function renderCalendar(year, month) {
 
 function showEvents(m, d) {
     const list = document.getElementById("eventList");
-    document.getElementById("selectedDateText").innerText = `${m}/${d} 行程明細`;
+    document.getElementById("selectedDateText").innerText = `${m}月${d}日 Schedule`;
     list.innerHTML = "";
 
     const filtered = allEvents.filter(e => e.month === m && e.day === d).sort((a,b) => a.time.localeCompare(b.time));
 
     if(filtered.length === 0) {
-        list.innerHTML = "<div style='opacity:0.3; text-align:center; padding:50px; font-size:20px;'>此日期無預約行程</div>";
+        list.innerHTML = "<div style='opacity:0.2; text-align:center; padding:40px; font-size:16px;'>No records found</div>";
         return;
     }
 
@@ -182,25 +224,25 @@ function showEvents(m, d) {
         const t = (e.event + e.note + e.name).toUpperCase();
         let statusClass = ""; let badge = "";
         if(t.includes("VIP") || t.includes("市長") || t.includes("貴賓")) { 
-            statusClass = "vip"; badge = "<span class='badge' style='background:var(--vip)'>⭐ VIP</span>"; 
+            statusClass = "vip"; badge = `<span class="badge" style="background:var(--vip)">VIP</span>`; 
         } else if(t.includes("待確認") || t.includes("暫定")) { 
-            statusClass = "pending"; badge = "<span class='badge' style='background:var(--pending); color:#000'>⚠️ 待確認</span>"; 
+            statusClass = "pending"; badge = `<span class="badge" style="background:var(--pending); color:#000">PENDING</span>`; 
         }
 
         list.innerHTML += `
             <div class="event-card ${statusClass}">
-                <div class="time-tag">⏰ ${e.time} ${badge}</div>
-                <div class="name-row">${e.name} <span style="font-size:18px; opacity:0.6; font-weight:400;">(${e.people}人)</span></div>
+                <div class="time-tag">${e.time} ${badge}</div>
+                <div class="name-row">${e.name} <span style="font-size:14px; opacity:0.4; font-weight:400;">/ ${e.people}P</span></div>
                 <div class="info-row">📌 ${e.event}</div>
                 <div class="info-row">📞 ${e.phone}</div>
-                ${e.note ? `<div class="note-box">💡 備註：${e.note}</div>` : ""}
+                ${e.note ? `<div class="note-box">${e.note}</div>` : ""}
             </div>
         `;
     });
 }
 
 fetchData();
-setInterval(fetchData, 60000); // 每一分鐘自動更新一次
+setInterval(fetchData, 60000);
 </script>
 </body>
 </html>
