@@ -9,7 +9,7 @@ initial-scale=1.0,
 maximum-scale=1.0,
 user-scalable=no">
 
-<title>🌿 今日團體 AI 儀表板</title>
+<title>🌿 AI 特殊事件看板</title>
 
 <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 
@@ -76,12 +76,15 @@ body{
     padding:18px;
     border:none;
     border-radius:20px;
+
     background:linear-gradient(
         135deg,
         #00c853,
         #0091ea
     );
+
     color:white;
+
     font-size:20px;
     font-weight:800;
 }
@@ -94,36 +97,28 @@ body{
 
 .result{
     margin-top:15px;
-    line-height:1.8;
-    font-size:16px;
 }
 
-.keyword{
+.badge{
     display:inline-block;
-    background:#ff5252;
-    padding:6px 12px;
+
+    padding:
+    8px 14px;
+
     border-radius:999px;
+
     margin:5px;
-    font-weight:700;
+
+    font-weight:800;
+
+    background:#ff5252;
 }
 
 .ok{
     background:#00c853;
 }
 
-textarea{
-    width:100%;
-    margin-top:15px;
-    background:#11151c;
-    color:white;
-    border:none;
-    border-radius:16px;
-    padding:15px;
-    min-height:180px;
-    font-size:14px;
-}
-
-.group-card{
+.event-card{
 
     background:#1e2633;
 
@@ -132,16 +127,36 @@ textarea{
     border-radius:20px;
 
     margin-top:15px;
+
+    border-left:8px solid #ff9800;
 }
 
-.group-time{
+.event-time{
     font-size:28px;
     font-weight:900;
 }
 
-.group-type{
+.event-type{
     margin-top:8px;
     font-size:18px;
+}
+
+.event-detail{
+    margin-top:10px;
+    opacity:.8;
+    line-height:1.6;
+}
+
+textarea{
+    width:100%;
+    margin-top:20px;
+    background:#11151c;
+    color:white;
+    border:none;
+    border-radius:16px;
+    padding:15px;
+    min-height:180px;
+    font-size:14px;
 }
 
 .footer{
@@ -158,11 +173,11 @@ textarea{
 <body>
 
 <div class="title">
-🌿 今日團體 AI 儀表板
+🌿 AI 特殊事件看板
 </div>
 
 <div class="sub">
-手機截圖 → AI辨識 → 自動建立團體行事曆
+AI 自動分析群組截圖中的特殊安排
 </div>
 
 <div class="card">
@@ -181,7 +196,7 @@ class="preview">
 class="btn"
 onclick="scanImage()">
 
-🔍 開始 AI 辨識
+🔍 AI 開始分析
 
 </button>
 
@@ -189,7 +204,7 @@ onclick="scanImage()">
 class="loading"
 id="loading">
 
-⏳ AI OCR 辨識中...
+⏳ AI OCR 分析中...
 
 </div>
 
@@ -197,41 +212,97 @@ id="loading">
 
 <div class="card">
 
-<div
-class="result"
-id="result">
-
-</div>
+<div id="result" class="result"></div>
 
 <textarea
 id="fullText"
-placeholder="OCR辨識文字會顯示在這裡">
+placeholder="OCR辨識文字">
 
 </textarea>
 
 </div>
 
 <div class="footer">
-AI OCR Dashboard PRO
+AI Special Event Dashboard
 </div>
 
 <script>
 
-const keywords = [
+// 🌿 AI 智慧關鍵字
 
-    "公務團",
-    "參訪",
-    "團體",
-    "立委",
-    "議員",
-    "貴賓",
-    "VIP",
-    "保留",
-    "專案",
-    "長官",
-    "公關",
-    "來賓"
+const smartKeywords = [
 
+    {
+        word:"警局",
+        type:"🚓 警局相關",
+        color:"#ff5252"
+    },
+
+    {
+        word:"分局長",
+        type:"🚨 長官層級",
+        color:"#ff1744"
+    },
+
+    {
+        word:"服務處",
+        type:"🏛️ 服務處",
+        color:"#ff9800"
+    },
+
+    {
+        word:"立委",
+        type:"🏛️ 立委相關",
+        color:"#ff6d00"
+    },
+
+    {
+        word:"議員",
+        type:"🏛️ 議員相關",
+        color:"#ff6d00"
+    },
+
+    {
+        word:"長官",
+        type:"👔 長官安排",
+        color:"#2979ff"
+    },
+
+    {
+        word:"外加",
+        type:"➕ 額外名額",
+        color:"#00c853"
+    },
+
+    {
+        word:"獨立帶",
+        type:"⭐ 特殊帶隊",
+        color:"#00b0ff"
+    },
+
+    {
+        word:"貴賓",
+        type:"🌟 VIP",
+        color:"#9c27b0"
+    },
+
+    {
+        word:"VIP",
+        type:"🌟 VIP",
+        color:"#9c27b0"
+    },
+
+    {
+        word:"加梯",
+        type:"📈 加梯",
+        color:"#26c6da"
+    },
+
+    {
+        word:"保留",
+        type:"📌 保留名額",
+        color:"#ffc107"
+    }
 ];
 
 const imageInput =
@@ -261,7 +332,7 @@ imageInput.addEventListener("change",e=>{
     }
 });
 
-// 🌿 AI OCR 辨識
+// 🌿 AI OCR
 
 async function scanImage(){
 
@@ -275,14 +346,11 @@ async function scanImage(){
         return;
     }
 
-    document.getElementById("loading")
-    .style.display = "block";
+    loading.style.display = "block";
 
-    document.getElementById("result")
-    .innerHTML = "";
+    result.innerHTML = "";
 
-    document.getElementById("fullText")
-    .value = "";
+    fullText.value = "";
 
     try{
 
@@ -299,150 +367,93 @@ async function scanImage(){
             }
         );
 
-        document.getElementById("loading")
-        .style.display = "none";
+        loading.style.display = "none";
 
-        document.getElementById("fullText")
-        .value = text;
+        fullText.value = text;
 
-        let found = [];
-
-        keywords.forEach(k=>{
-
-            if(text.includes(k)){
-
-                found.push(k);
-            }
-        });
-
-        // 🌿 找時間
-
-        const timeMatch =
-        text.match(/\d{1,2}[:：]\d{2}/g);
-
-        let html = "";
-
-        // 🌿 關鍵字
-
-        if(found.length > 0){
-
-            html += `
-            <h2>
-            ⚠️ 偵測到特殊名額
-            </h2><br>
-            `;
-
-            found.forEach(f=>{
-
-                html += `
-                <span class="keyword">
-                    ${f}
-                </span>
-                `;
-            });
-
-        }else{
-
-            html += `
-            <span class="keyword ok">
-                未發現特殊關鍵字
-            </span>
-            `;
-        }
-
-        // 🌿 時段
-
-        if(timeMatch){
-
-            html += `
-            <br><br>
-
-            <h2>
-            🕒 偵測到時段
-            </h2><br>
-            `;
-
-            timeMatch.forEach(t=>{
-
-                html += `
-                <span class="keyword ok">
-                    ${t}
-                </span>
-                `;
-            });
-        }
-
-        // 🌿 今日團體
-
-        html += `
-        <br><br>
-
-        <h2>
-        📅 今日團體
-        </h2>
-        `;
-
-        if(timeMatch){
-
-            timeMatch.forEach((t,index)=>{
-
-                const type =
-                found[index] || "特殊團";
-
-                let color = "#00c853";
-
-                if(type.includes("VIP"))
-                    color = "#2979ff";
-
-                if(type.includes("議員"))
-                    color = "#ff5252";
-
-                if(type.includes("公務"))
-                    color = "#ff9800";
-
-                html += `
-
-                <div
-                class="group-card"
-
-                style="
-                border-left:
-                8px solid ${color};
-                ">
-
-                    <div class="group-time">
-                        ${t}
-                    </div>
-
-                    <div class="group-type">
-                        ${type}
-                    </div>
-
-                </div>
-                `;
-            });
-
-        }else{
-
-            html += `
-            <div class="group-card">
-                未找到時間資料
-            </div>
-            `;
-        }
-
-        document.getElementById("result")
-        .innerHTML = html;
+        analyzeAI(text);
 
     }catch(err){
 
         console.error(err);
 
-        document.getElementById("loading")
-        .style.display = "none";
+        loading.style.display = "none";
 
-        alert("OCR辨識失敗");
+        alert("OCR失敗");
     }
+}
+
+// 🌿 AI分析
+
+function analyzeAI(text){
+
+    let html = "";
+
+    html += `
+    <h2>
+    ⚠️ AI 偵測到的特殊事件
+    </h2>
+    `;
+
+    const timeMatch =
+    text.match(/\d{1,2}[:：]\d{2}/g);
+
+    let foundAny = false;
+
+    smartKeywords.forEach(item=>{
+
+        if(text.includes(item.word)){
+
+            foundAny = true;
+
+            let time =
+            timeMatch ?
+            timeMatch[0] :
+            "未找到時間";
+
+            html += `
+
+            <div
+            class="event-card"
+
+            style="
+            border-left:
+            8px solid ${item.color};
+            ">
+
+                <div class="event-time">
+                    ${time}
+                </div>
+
+                <div class="event-type">
+                    ${item.type}
+                </div>
+
+                <div class="event-detail">
+                    偵測到：
+                    ${item.word}
+                </div>
+
+            </div>
+            `;
+        }
+    });
+
+    if(!foundAny){
+
+        html += `
+
+        <div class="event-card">
+
+            <div class="event-type">
+                ✅ 未發現特殊安排
+            </div>
+
+        </div>
+        `;
+    }
+
+    result.innerHTML = html;
 }
 
 </script>
