@@ -79,7 +79,6 @@
         color: #cbd5e1; line-height: 1.5;
     }
 
-    /* 響應式調整 */
     @media (max-width: 480px) {
         .title { font-size: 24px; }
         .today-status { font-size: 20px; }
@@ -105,11 +104,10 @@
 </div>
 
 <script>
-// 試算表設定
+// 試算表 ID
 const SHEET_ID = "1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg";
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
-// 自動分類功能
 function getType(text = ""){
     const t = text.toUpperCase();
     if(t.includes("市長") || t.includes("VIP") || t.includes("貴賓")) return { label:"VIP", color:"#ef4444" };
@@ -120,12 +118,11 @@ function getType(text = ""){
 
 async function loadSheet(){
     try{
-        // 增加快取清除機制，確保 GitHub Pages 抓到最新試算表資料
         const res = await fetch(`${SHEET_URL}&cachebust=${new Date().getTime()}`);
         const csv = await res.text();
         parseCSV(csv);
     }catch(err){
-        document.getElementById("todayStatus").innerHTML = "❌ 資料讀取失敗 (請檢查共用設定)";
+        document.getElementById("todayStatus").innerHTML = "❌ 資料讀取失敗";
     }
 }
 
@@ -133,7 +130,6 @@ function parseCSV(csv){
     const rows = csv.split("\n").slice(1);
     let events = [];
     rows.forEach(r=>{
-        // 處理 CSV 格式中的逗號與引號
         const cols = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
         if(cols.length >= 7) {
             events.push({ 
@@ -155,7 +151,7 @@ function render(events){
     const status = document.getElementById("todayStatus");
     const now = new Date();
     
-    // 基準時間（用於比較）
+    // 取得今日凌晨時間作為基準
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const currentHour = now.getHours();
 
@@ -165,19 +161,18 @@ function render(events){
     events.forEach(e => {
         if(!e.date || !e.date.includes("/")) return;
 
-        // 解析日期 (格式 M/D)
+        // 解析日期 (M/D)
         const dateParts = e.date.split("/");
         const eventDate = new Date(now.getFullYear(), parseInt(dateParts[0])-1, parseInt(dateParts[1]));
         
-        // 解析小時 (格式 HH:mm)
+        // 解析小時 (HH:mm)
         const eventHour = parseInt(e.time.split(":")[0]) || 0;
 
-        // 【自動隱藏邏輯核心】
+        // 過濾邏輯：1. 不是過去的日期 2. 如果是今天，小時不能小於現在
         const isPastDay = eventDate < todayStart;
         const isToday = eventDate.getTime() === todayStart.getTime();
         const isExpiredToday = isToday && eventHour < currentHour;
 
-        // 只有「非過去日期」且「非今天已過時」的行程才會顯示
         if (!isPastDay && !isExpiredToday) {
             activeCount++;
             const info = getType(`${e.event} ${e.note}`);
@@ -185,7 +180,7 @@ function render(events){
             detail.innerHTML += `
                 <div class="detail-card">
                     <span class="badge" style="background:${info.color}">${info.label}</span>
-                    <h3>📅 ${e.date} <span style="margin-left:8px; color:#fff; letter-spacing:1px;">${e.time}</span></h3>
+                    <h3>📅 ${e.date} <span style="margin-left:8px; color:#fff;">${e.time}</span></h3>
                     <div class="info-row"><span class="info-label">👤</span> <span><b>${e.name}</b> (${e.people}人)</span></div>
                     <div class="info-row"><span class="info-label">📌</span> <span>${e.event}</span></div>
                     <div class="info-row"><span class="info-label">📞</span> <span>${e.phone}</span></div>
@@ -195,24 +190,18 @@ function render(events){
         }
     });
 
-    // 更新頂部橫幅狀態
     if(activeCount > 0){
         status.innerHTML = `📢 剩餘 ${activeCount} 筆待辦行程`;
         status.style.background = "linear-gradient(135deg, #1e40af, #3b82f6)";
-        status.style.border = "1px solid rgba(96, 165, 250, 0.3)";
     } else {
-        status.innerHTML = "✅ 今日行程已結束 / 暫無預定項目";
+        status.innerHTML = "✅ 今日行程已結束 / 暫無待辦項目";
         status.style.background = "linear-gradient(135deg, #15803d, #22c55e)";
-        status.style.border = "1px solid rgba(34, 197, 94, 0.3)";
-        detail.innerHTML = "<div style='opacity:0.4; grid-column: 1/-1; text-align:center; padding:60px; font-size:14px;'>目前沒有即將到來的行程項目</div>";
+        detail.innerHTML = "<div style='opacity:0.4; grid-column: 1/-1; text-align:center; padding:60px;'>目前沒有即將到來的行程</div>";
     }
 }
 
-// 啟動載入
 loadSheet();
-
-// 每 60 秒背景自動同步一次試算表
-setInterval(loadSheet, 60000);
+setInterval(loadSheet, 60000); // 每分鐘刷新一次
 </script>
 </body>
 </html>
