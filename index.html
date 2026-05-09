@@ -3,47 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>📌 後慈湖行程看板 (重點強化版)</title>
+    <title>📌 後慈湖行程看板 (即時更新版)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap');
         :root {
             --primary-bg: #0f172a;
             --vip-red: #ef4444;
-            --focus-gold: #fbbf24;
+            --confirm-orange: #f59e0b;
+            --future-blue: #3b82f6;
         }
         *{ margin:0; padding:0; box-sizing:border-box; font-family: "SF Pro Display", "Noto Sans TC", sans-serif; }
         body{ background: radial-gradient(circle at top, #1e293b 0%, var(--primary-bg) 100%); color:#e2e8f0; padding:15px; min-height:100vh; }
         
         .header-section { text-align: center; margin: 20px 0; }
-        .title{ font-size:30px; font-weight:900; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .title{ font-size:28px; font-weight:900; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
         
-        /* 狀態列 */
-        .status-bar{ background: linear-gradient(135deg, #1e40af, #3b82f6); padding:18px; border-radius:20px; font-size:20px; font-weight:900; text-align:center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .status-bar{ background: linear-gradient(135deg, #1e40af, #3b82f6); padding:15px; border-radius:18px; font-size:18px; font-weight:900; text-align:center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         
-        /* 重點專區 */
-        .focus-section { border: 2px solid var(--focus-gold); background: rgba(251, 191, 36, 0.05); border-radius: 25px; padding: 20px; margin-bottom: 25px; }
-        .focus-title { color: var(--focus-gold); font-size: 18px; font-weight: 900; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        
-        /* 卡片設計 */
         #detail { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 15px; }
-        .detail-card{ background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding:20px; border-radius:22px; position: relative; transition: 0.3s; }
+        .detail-card{ background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding:18px; border-radius:20px; position: relative; animation: fadeIn 0.4s ease forwards; }
         
-        /* 高亮樣式 */
-        .is-vip { border-left: 5px solid var(--vip-red); background: rgba(239, 68, 68, 0.05); }
-        .is-now { border: 2px solid var(--focus-gold); animation: pulse-border 2s infinite; }
-        
-        @keyframes pulse-border {
-            0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .badge{ position: absolute; top: 20px; right: 20px; padding:4px 12px; border-radius:8px; font-size:12px; font-weight:900; color: white; }
-        h3 { margin-bottom: 15px; font-size: 19px; color: #60a5fa; }
-        .info-row { font-size: 15px; margin-bottom: 8px; display: flex; gap: 10px; }
-        .note-box { margin-top: 10px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 12px; font-size: 14px; border-left: 4px solid #64748b; color: #cbd5e1; }
+        /* 特殊狀態樣式 */
+        .is-confirm { border: 2px solid var(--confirm-orange); background: rgba(245, 158, 11, 0.1); }
+        .is-confirm .badge { background: var(--confirm-orange) !important; }
         
-        .live-tag { color: var(--focus-gold); font-weight: 900; font-size: 12px; margin-bottom: 5px; display: block; }
+        .badge{ position: absolute; top: 18px; right: 18px; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:900; }
+        h3 { margin-bottom: 12px; font-size: 18px; color: #60a5fa; padding-right: 60px; }
+        
+        .info-row { font-size: 14px; margin-bottom: 6px; display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
+        .info-label { opacity: 0.5; min-width: 20px; }
+        
+        .note-box { margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; font-size: 13px; border-left: 3px solid #64748b; color: #cbd5e1; white-space: pre-wrap; }
+        
+        .date-tag { font-size: 12px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; margin-right: 5px; color: #fff; }
     </style>
 </head>
 <body>
@@ -54,33 +48,34 @@
 
 <div id="todayStatus" class="status-bar">⏳ 同步資料中...</div>
 
-<!-- 今日重點專區 -->
-<div id="focusArea" class="focus-section" style="display: none;">
-    <div class="focus-title">✨ 今日管理重點 (VIP / 即將抵達)</div>
-    <div id="focusDetail" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 15px;"></div>
-</div>
-
-<div style="margin-bottom: 15px; opacity: 0.6; font-size: 14px; padding-left: 10px;">📅 所有待辦行程</div>
 <div id="detail"></div>
 
 <script>
 const SHEET_ID = "1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg";
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
-function getType(text = "", note = ""){
-    const t = (text + note).toUpperCase();
-    if(t.includes("市長") || t.includes("VIP") || t.includes("貴賓")) return { label:"VIP", color:"#ef4444", important: true };
-    if(t.includes("拍攝") || t.includes("攝影")) return { label:"拍攝", color:"#a855f7", important: false };
-    if(t.includes("導覽")) return { label:"導覽", color:"#22c55e", important: false };
-    return { label:"行程", color:"#3b82f6", important: false };
+function getStatusInfo(eventText = "", noteText = ""){
+    const fullText = (eventText + noteText).toUpperCase();
+    
+    // 優先判斷是否待確認
+    if(fullText.includes("待確認") || fullText.includes("未定") || fullText.includes("暫定")){
+        return { label: "⚠️ 待確認", color: "#f59e0b", className: "is-confirm" };
+    }
+    if(fullText.includes("市長") || fullText.includes("VIP") || fullText.includes("貴賓")){
+        return { label: "⭐ VIP", color: "#ef4444", className: "is-vip" };
+    }
+    if(fullText.includes("拍攝") || fullText.includes("攝影")){
+        return { label: "📷 拍攝", color: "#a855f7", className: "" };
+    }
+    return { label: "📅 行程", color: "#3b82f6", className: "" };
 }
 
 async function loadSheet(){
-    try {
+    try{
         const res = await fetch(`${SHEET_URL}&cb=${new Date().getTime()}`);
         const csv = await res.text();
         parseCSV(csv);
-    } catch(err) {
+    }catch(err){
         document.getElementById("todayStatus").innerHTML = "❌ 連線失敗";
     }
 }
@@ -93,7 +88,7 @@ function parseCSV(csv){
     for(let i = 1; i < lines.length; i++){
         if(!lines[i].trim()) continue;
         const cols = lines[i].split(pattern).map(v => v.replace(/^"|"$/g, '').trim());
-        if(cols.length >= 7) {
+        if(cols.length >= 7){
             result.push({
                 date: cols[1], time: cols[2], name: cols[3], 
                 event: cols[4], people: cols[5], phone: cols[6], note: cols[7] || ""
@@ -105,62 +100,48 @@ function parseCSV(csv){
 
 function render(events){
     const detail = document.getElementById("detail");
-    const focusDetail = document.getElementById("focusDetail");
-    const focusArea = document.getElementById("focusArea");
     const status = document.getElementById("todayStatus");
-    
     const now = new Date();
-    const todayStr = `${now.getMonth()+1}/${now.getDate()}`;
-    const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+    
+    // 取得今天凌晨的時間戳用於比較
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
 
     detail.innerHTML = "";
-    focusDetail.innerHTML = "";
-    let count = 0;
-    let hasFocus = false;
+    let activeCount = 0;
 
     events.forEach(e => {
         if(!e.date || !e.date.includes("/")) return;
-        
-        // 日期比對邏輯
+
+        // 解析日期 (假設格式為 MM/DD)
         const parts = e.date.split("/");
-        const isToday = (parseInt(parts[0]) === (now.getMonth()+1) && parseInt(parts[1]) === now.getDate());
-        
-        // 隱藏過去的日期
-        const eventDate = new Date(now.getFullYear(), parseInt(parts[0])-1, parseInt(parts[1]));
-        const todayNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        if (eventDate < todayNoon) return;
+        const eventDate = new Date(now.getFullYear(), parseInt(parts[0]) - 1, parseInt(parts[1])).getTime();
 
-        const info = getType(e.event, e.note);
-        
-        // 時間比對 (用於標記「進行中」)
-        const timeParts = e.time.split(":");
-        const eventTimeMinutes = (parseInt(timeParts[0]) || 0) * 60 + (parseInt(timeParts[1]) || 0);
-        const isNow = isToday && Math.abs(currentTimeMinutes - eventTimeMinutes) <= 60; // 前後一小時內
+        // --- 過濾邏輯：只顯示今天(含)以後的行程 ---
+        if(eventDate < today) return;
 
-        const cardHtml = `
-            <div class="detail-card ${info.important ? 'is-vip' : ''} ${isNow ? 'is-now' : ''}">
-                ${isNow ? '<span class="live-tag">⚡ 進行中 / 即將抵達</span>' : ''}
-                <span class="badge" style="background:${info.color}">${info.label}</span>
-                <h3>📅 ${e.date} ${e.time}</h3>
-                <div class="info-row">👤 <b>${e.name}</b> (${e.people}人)</div>
-                <div class="info-row">📌 ${e.event}</div>
-                <div class="info-row">📞 ${e.phone}</div>
+        activeCount++;
+        const state = getStatusInfo(e.event, e.note);
+
+        detail.innerHTML += `
+            <div class="detail-card ${state.className}">
+                <span class="badge" style="background:${state.color}">${state.label}</span>
+                <h3><span class="date-tag">${e.date}</span> ${e.time}</h3>
+                <div class="info-row"><span class="info-label">👤</span><span><b>${e.name}</b> (${e.people}人)</span></div>
+                <div class="info-row"><span class="info-label">📌</span><span>${e.event}</span></div>
+                <div class="info-row"><span class="info-label">📞</span><span>${e.phone}</span></div>
                 ${e.note ? `<div class="note-box"><b>備註：</b><br>${e.note}</div>` : ''}
             </div>
         `;
-
-        // 分流：VIP 或 正在進行的放入重點區
-        if (info.important || isNow) {
-            focusDetail.innerHTML += cardHtml;
-            hasFocus = true;
-        }
-        
-        detail.innerHTML += cardHtml;
-        count++;
     });
 
-    focusArea.style.display = hasFocus ? "block" : "none";
-    status.innerHTML = count > 0 ? `✅ 今日尚有 ${count} 筆行程` : "✨ 目前無待辦項目";
+    if(activeCount > 0){
+        status.innerHTML = `✅ 今日及後續共有 ${activeCount} 筆行程`;
+        status.style.background = "linear-gradient(135deg, #1e40af, #3b82f6)";
+    } else {
+        status.innerHTML = "✨ 目前無待辦行程";
+        status.style.background = "linear-gradient(135deg, #059669, #10b981)";
+        detail.innerHTML = "<div style='opacity:0.3; grid-column:1/-1; text-align:center; padding:50px;'>目前沒有待處理的預約</div>";
+    }
 }
 
 loadSheet();
