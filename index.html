@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>📌 後慈湖行程看板</title>
+<title>📌 後慈湖特殊行程表</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap');
 
@@ -39,14 +39,15 @@
         box-shadow: 0 20px 50px rgba(0,0,0,0.3);
     }
 
-    /* 今日狀態區塊 */
+    /* 頂部狀態列 */
     .today-status{
         padding:20px; border-radius:20px;
         font-size:24px; font-weight:900; text-align:center;
         transition: 0.5s;
+        box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
     }
 
-    /* 詳細資訊區塊 */
+    /* 內容區塊佈局 */
     #detail { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
 
     .detail-card{
@@ -63,8 +64,9 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    .info-row { font-size: 15px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-    .info-label { opacity: 0.6; min-width: 25px; font-size: 14px; }
+    .info-row { font-size: 15px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+    .info-label { opacity: 0.6; min-width: 25px; font-size: 14px; margin-top: 2px; }
+    
     .badge{ 
         position: absolute; top: 20px; right: 20px;
         padding:4px 12px; border-radius:8px; font-size:12px; font-weight:900; 
@@ -72,31 +74,42 @@
 
     h3 { margin-bottom: 15px; font-size: 18px; color: #60a5fa; }
     .note-box { 
-        margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); 
-        border-radius: 10px; font-size: 14px; border-left: 3px solid #64748b;
+        margin-top: 10px; padding: 12px; background: rgba(0,0,0,0.2); 
+        border-radius: 12px; font-size: 14px; border-left: 4px solid #64748b;
+        color: #cbd5e1; line-height: 1.5;
+    }
+
+    /* 響應式調整 */
+    @media (max-width: 480px) {
+        .title { font-size: 24px; }
+        .today-status { font-size: 20px; }
     }
 </style>
 </head>
 <body>
 
 <div class="header-section">
-    <div class="title">📌 後慈湖行程監控</div>
+    <div class="title">📌 後慈湖行程表</div>
 </div>
 
 <div class="card">
-    <div id="todayStatus" class="today-status">⏳ 正在同步試算表資料...</div>
+    <div id="todayStatus" class="today-status">⏳ 同步雲端資料中...</div>
 </div>
 
 <div class="card">
-    <h2 style="margin-bottom: 20px; font-size: 18px; opacity: 0.8;">🔔 待辦行程 (昨天的已隱藏)</h2>
+    <h2 style="margin-bottom: 20px; font-size: 18px; opacity: 0.8; display: flex; align-items: center; gap: 8px;">
+        <span>🔔 待辦行程清單</span>
+        <span style="font-size: 12px; font-weight: normal; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">過期自動隱藏</span>
+    </h2>
     <div id="detail"></div>
 </div>
 
 <script>
-// 使用你提供的試算表 ID
+// 試算表設定
 const SHEET_ID = "1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg";
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
+// 自動分類功能
 function getType(text = ""){
     const t = text.toUpperCase();
     if(t.includes("市長") || t.includes("VIP") || t.includes("貴賓")) return { label:"VIP", color:"#ef4444" };
@@ -107,12 +120,12 @@ function getType(text = ""){
 
 async function loadSheet(){
     try{
-        // 加上 timestamp 防止快取舊資料
-        const res = await fetch(`${SHEET_URL}&t=${new Date().getTime()}`);
+        // 增加快取清除機制，確保 GitHub Pages 抓到最新試算表資料
+        const res = await fetch(`${SHEET_URL}&cachebust=${new Date().getTime()}`);
         const csv = await res.text();
         parseCSV(csv);
     }catch(err){
-        document.getElementById("todayStatus").innerHTML = "❌ 連線異常，請確認試算表已開啟共用權限";
+        document.getElementById("todayStatus").innerHTML = "❌ 資料讀取失敗 (請檢查共用設定)";
     }
 }
 
@@ -120,7 +133,7 @@ function parseCSV(csv){
     const rows = csv.split("\n").slice(1);
     let events = [];
     rows.forEach(r=>{
-        // 簡單處理 CSV 逗號問題
+        // 處理 CSV 格式中的逗號與引號
         const cols = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
         if(cols.length >= 7) {
             events.push({ 
@@ -142,7 +155,7 @@ function render(events){
     const status = document.getElementById("todayStatus");
     const now = new Date();
     
-    // 取得今天的午夜時間用於比較日期
+    // 基準時間（用於比較）
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const currentHour = now.getHours();
 
@@ -152,19 +165,19 @@ function render(events){
     events.forEach(e => {
         if(!e.date || !e.date.includes("/")) return;
 
-        // 解析日期 (假設格式為 M/D)
-        const parts = e.date.split("/");
-        const eventDate = new Date(now.getFullYear(), parseInt(parts[0])-1, parseInt(parts[1]));
+        // 解析日期 (格式 M/D)
+        const dateParts = e.date.split("/");
+        const eventDate = new Date(now.getFullYear(), parseInt(dateParts[0])-1, parseInt(dateParts[1]));
         
-        // 解析小時 (假設格式為 HH:mm)
+        // 解析小時 (格式 HH:mm)
         const eventHour = parseInt(e.time.split(":")[0]) || 0;
 
-        // 判斷邏輯
+        // 【自動隱藏邏輯核心】
         const isPastDay = eventDate < todayStart;
         const isToday = eventDate.getTime() === todayStart.getTime();
         const isExpiredToday = isToday && eventHour < currentHour;
 
-        // 核心過濾：如果是昨天(含)以前，或今天是過去的小時，就不顯示
+        // 只有「非過去日期」且「非今天已過時」的行程才會顯示
         if (!isPastDay && !isExpiredToday) {
             activeCount++;
             const info = getType(`${e.event} ${e.note}`);
@@ -172,28 +185,33 @@ function render(events){
             detail.innerHTML += `
                 <div class="detail-card">
                     <span class="badge" style="background:${info.color}">${info.label}</span>
-                    <h3>📅 ${e.date} <span style="margin-left:10px; color:#fff;">${e.time}</span></h3>
-                    <div class="info-row"><span class="info-label">👤</span> <b>${e.name}</b> (${e.people}人)</div>
-                    <div class="info-row"><span class="info-label">📌</span> ${e.event}</div>
-                    <div class="info-row"><span class="info-label">📞</span> ${e.phone}</div>
-                    ${e.note ? `<div class="note-box">📝 ${e.note}</div>` : ''}
+                    <h3>📅 ${e.date} <span style="margin-left:8px; color:#fff; letter-spacing:1px;">${e.time}</span></h3>
+                    <div class="info-row"><span class="info-label">👤</span> <span><b>${e.name}</b> (${e.people}人)</span></div>
+                    <div class="info-row"><span class="info-label">📌</span> <span>${e.event}</span></div>
+                    <div class="info-row"><span class="info-label">📞</span> <span>${e.phone}</span></div>
+                    ${e.note ? `<div class="note-box"><b>備註：</b><br>${e.note}</div>` : ''}
                 </div>
             `;
         }
     });
 
+    // 更新頂部橫幅狀態
     if(activeCount > 0){
-        status.innerHTML = `📢 還有 ${activeCount} 筆待辦行程`;
+        status.innerHTML = `📢 剩餘 ${activeCount} 筆待辦行程`;
         status.style.background = "linear-gradient(135deg, #1e40af, #3b82f6)";
+        status.style.border = "1px solid rgba(96, 165, 250, 0.3)";
     } else {
-        status.innerHTML = "✅ 目前無即將到來的行程";
+        status.innerHTML = "✅ 今日行程已結束 / 暫無預定項目";
         status.style.background = "linear-gradient(135deg, #15803d, #22c55e)";
-        detail.innerHTML = "<div style='opacity:0.5; grid-column: 1/-1; text-align:center; padding:40px;'>暫無資料</div>";
+        status.style.border = "1px solid rgba(34, 197, 94, 0.3)";
+        detail.innerHTML = "<div style='opacity:0.4; grid-column: 1/-1; text-align:center; padding:60px; font-size:14px;'>目前沒有即將到來的行程項目</div>";
     }
 }
 
-// 啟動與自動刷新 (每 60 秒)
+// 啟動載入
 loadSheet();
+
+// 每 60 秒背景自動同步一次試算表
 setInterval(loadSheet, 60000);
 </script>
 </body>
