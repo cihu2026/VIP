@@ -112,15 +112,16 @@
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg/export?format=csv";
 
 function getType(text = ""){
-    if(text.includes("市長") || text.includes("VIP") || text.includes("貴賓")) return { label:"VIP", color:"#ef4444" };
-    if(text.includes("拍攝") || text.includes("攝影")) return { label:"拍攝", color:"#a855f7" };
-    if(text.includes("導覽")) return { label:"導覽", color:"#22c55e" };
+    const t = text.toUpperCase();
+    if(t.includes("市長") || t.includes("VIP") || t.includes("貴賓")) return { label:"VIP", color:"#ef4444" };
+    if(t.includes("拍攝") || t.includes("攝影")) return { label:"拍攝", color:"#a855f7" };
+    if(t.includes("導覽")) return { label:"導覽", color:"#22c55e" };
     return { label:"活動", color:"#3b82f6" };
 }
 
 async function loadSheet(){
     try{
-        const res = await fetch(SHEET_URL);
+        const res = await fetch(SHEET_URL + "&cachebust=" + new Date().getTime());
         const csv = await res.text();
         parseCSV(csv);
     }catch(err){
@@ -134,7 +135,15 @@ function parseCSV(csv){
     rows.forEach(r=>{
         const cols = r.split(",");
         if(cols.length >= 8) {
-            events.push({ date:cols[1], time:cols[2], name:cols[3], event:cols[4], people:cols[5], phone:cols[6], note:cols[7] });
+            events.push({ 
+                date: cols[1].trim(), 
+                time: cols[2].trim(), 
+                name: cols[3].trim(), 
+                event: cols[4].trim(), 
+                people: cols[5].trim(), 
+                phone: cols[6].trim(), 
+                note: cols[7].trim() 
+            });
         }
     });
     render(events);
@@ -151,7 +160,7 @@ function render(events){
     detail.innerHTML = "";
     
     const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
-    let pendingVipCount = 0;
+    let pendingTodayCount = 0;
 
     for(let day=1; day<=daysInMonth; day++){
         const isPastDay = day < currentDay;
@@ -162,18 +171,19 @@ function render(events){
         dayDiv.innerHTML = `<div class="day-number">${day}</div>`;
 
         events.forEach(e=>{
+            // 解析日期 (格式假設為 5/9)
             const match = e.date.match(/\d{1,2}\/(\d{1,2})/);
             if(match && parseInt(match[1]) === day){
                 const info = getType(`${e.event} ${e.note}`);
-                const eventHour = parseInt(e.time.split(":")[0]);
+                const eventHour = parseInt(e.time.split(":")[0]) || 0;
                 
-                // 判斷是否「已結束」
+                // 判斷邏輯：如果是昨天的行程，或今天的時間已過，則視為結束
                 const isFinished = isPastDay || (isToday && eventHour < currentHour);
 
-                // 日曆點點 (過去的行程變灰色小點)
+                // 日曆點點：結束變灰，未結束顯示分類顏色
                 dayDiv.innerHTML += `<span class="event-dot" style="background:${isFinished ? '#475569' : info.color}"></span>`;
 
-                // --- 關鍵修改：只有「未結束」的行程才顯示在下方詳情 ---
+                // 只顯示「未結束」的行程在詳細清單中
                 if (!isFinished) {
                     detail.innerHTML += `
                         <div class="detail-card">
@@ -188,19 +198,20 @@ function render(events){
                             <div class="info-row"><span class="info-label">📝</span> ${e.note}</div>
                         </div>
                     `;
-                    if(isToday && info.label === "VIP") pendingVipCount++;
+                    if(isToday) pendingTodayCount++;
                 }
             }
         });
         calendar.appendChild(dayDiv);
     }
 
+    // 更新狀態列
     const status = document.getElementById("todayStatus");
-    if(pendingVipCount > 0){
-        status.innerHTML = `🚨 今日尚有 ${pendingVipCount} 場 VIP 待辦`;
-        status.style.background = "linear-gradient(135deg, #b91c1c, #ef4444)";
+    if(pendingTodayCount > 0){
+        status.innerHTML = `📢 今日尚有 ${pendingTodayCount} 場待辦行程`;
+        status.style.background = "linear-gradient(135deg, #1e40af, #3b82f6)";
     } else {
-        status.innerHTML = "✅ 目前無緊要行程";
+        status.innerHTML = "✅ 今日行程已全部結束或無行程";
         status.style.background = "linear-gradient(135deg, #15803d, #22c55e)";
     }
     
@@ -210,7 +221,8 @@ function render(events){
 }
 
 loadSheet();
-setInterval(loadSheet, 60000); // 每 60 秒自動檢查一次時間，實現「自然消失」效果
+// 每 60 秒抓取一次最新資料
+setInterval(loadSheet, 60000); 
 </script>
 </body>
 </html>
