@@ -3,165 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🌿 日曆型 AI 排程板</title>
+    <title>📅 AI 智慧日曆排程</title>
     <style>
         :root {
-            --bg-color: #121418;
-            --card-bg: #1e222a;
-            --cal-bg: #2d3440;
-            --accent: #00e676;
-            --text-dim: #94a3b8;
+            --bg: #0f1115;
+            --card: #1b1f27;
+            --primary: #00c853;
+            --border: #2d3440;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; }
-        body { background: var(--bg-color); color: #fff; padding: 15px; padding-bottom: 50px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Noto Sans TC", sans-serif; }
+        body { background: var(--bg); color: #e2e8f0; padding: 16px; line-height: 1.5; }
 
-        /* 標題與輸入區 */
-        .top-info { text-align: center; margin-bottom: 20px; }
-        .input-card { background: var(--card-bg); border-radius: 20px; padding: 15px; margin-bottom: 25px; border: 1px solid #333; }
+        /* 輸入區優化 */
+        .header-box { text-align: center; margin-bottom: 20px; }
+        .input-area { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 25px; border: 1px solid var(--border); }
         textarea { 
-            width: 100%; min-height: 100px; background: #111; border: 1px solid #444; 
-            color: #fff; padding: 12px; border-radius: 12px; font-size: 16px; margin-bottom: 10px;
+            width: 100%; min-height: 100px; background: #11151c; border: 1px solid #333; 
+            color: #fff; padding: 15px; border-radius: 15px; font-size: 16px; resize: none; outline: none;
         }
-        .btn-row { display: flex; gap: 10px; }
-        .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .btn-add { background: var(--accent); color: #000; }
-        .btn-clear { background: #333; color: #ff5252; }
+        .btns { display: flex; gap: 10px; margin-top: 12px; }
+        .btn { flex: 1; padding: 14px; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.2s; }
+        .btn-add { background: linear-gradient(135deg, #00c853, #0091ea); color: white; }
+        .btn-clear { background: #2d3440; color: #ff5252; }
 
-        /* 搜尋框 */
-        .search-box {
-            width: 100%; padding: 12px; background: #2d3440; border: none; 
-            border-radius: 10px; color: #fff; margin-bottom: 20px;
+        /* 月份分隔線 */
+        .month-divider { 
+            margin: 30px 0 15px; display: flex; align-items: center; 
+            font-size: 20px; font-weight: 900; color: var(--primary);
         }
+        .month-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); margin-left: 15px; }
 
-        /* 日曆區段 */
-        .month-header { 
-            font-size: 24px; font-weight: 800; color: var(--accent);
-            margin: 30px 0 15px 5px; display: flex; align-items: center;
-        }
-        .month-header::after { content: ''; flex: 1; height: 1px; background: #333; margin-left: 15px; }
-
-        /* 單個事件段落 */
-        .event-block {
-            display: flex; gap: 15px; background: var(--card-bg);
-            margin-bottom: 15px; border-radius: 16px; overflow: hidden;
-            border: 1px solid #333; position: relative;
+        /* 日曆一格一格的設計 */
+        .calendar-grid { display: flex; flex-direction: column; gap: 12px; }
+        
+        .event-card {
+            background: var(--card); border-radius: 18px; border: 1px solid var(--border);
+            display: flex; overflow: hidden; animation: slideIn 0.3s ease;
         }
 
-        /* 左側日曆格 */
-        .cal-box {
-            width: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: var(--cal-bg); border-right: 1px solid #333;
+        /* 左側日期區塊 */
+        .date-side {
+            width: 75px; background: #242a35; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; border-right: 1px solid var(--border);
         }
-        .cal-month { font-size: 12px; opacity: 0.7; margin-bottom: 2px; }
-        .cal-date { font-size: 26px; font-weight: 900; line-height: 1; }
-        .cal-day { font-size: 12px; margin-top: 5px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.3); }
+        .day-num { font-size: 28px; font-weight: 900; color: #fff; line-height: 1; }
+        .day-week { font-size: 12px; margin-top: 4px; opacity: 0.6; }
 
-        /* 右側詳細內容 */
-        .info-box { flex: 1; padding: 12px; }
-        .info-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .info-time { color: var(--accent); font-weight: bold; font-size: 15px; }
-        .info-tag { font-size: 11px; background: #444; padding: 2px 8px; border-radius: 20px; color: #ccc; }
-        .info-text { 
-            font-size: 15px; color: #e2e8f0; line-height: 1.6; 
-            white-space: pre-wrap; word-break: break-all;
-        }
+        /* 右側內容區塊 */
+        .content-side { flex: 1; padding: 15px; position: relative; }
+        .tag-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .type-tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 700; color: #fff; }
+        .time-text { font-size: 14px; font-weight: 700; color: #0091ea; }
+        
+        .event-title { font-size: 17px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+        .event-note { font-size: 14px; opacity: 0.7; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-        /* 側邊顏色條 */
-        .color-bar { width: 6px; height: 100%; position: absolute; left: 0; top: 0; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
 
-<div class="top-info">
-    <h2>📅 LINE AI 日曆排程</h2>
+<div class="header-box">
+    <h2>🌿 AI 智慧自動排程</h2>
 </div>
 
-<div class="input-card">
-    <textarea id="inputText" placeholder="直接貼上 LINE 訊息...&#10;範例：7/15 14:00 專案會議 (地點：3樓)"></textarea>
-    <div class="btn-row">
-        <button class="btn btn-add" onclick="analyze()">⚡ 快速加入</button>
-        <button class="btn btn-clear" onclick="clearData()">清空</button>
+<div class="input-area">
+    <textarea id="inputText" placeholder="直接貼上 LINE 訊息...&#10;範例：7/20 早上10:00 召開記者會 (地點：大禮堂)"></textarea>
+    <div class="btns">
+        <button class="btn btn-add" onclick="smartAdd()">🤖 AI 拆解並加入</button>
+        <button class="btn btn-clear" onclick="reset()">清空</button>
     </div>
 </div>
 
-<input type="text" id="search" class="search-box" placeholder="🔍 搜尋事件內容..." onkeyup="render()">
-
-<div id="timeline"></div>
+<div id="calendarArea" class="calendar-grid">
+    <!-- 自動分類的格子會出現在這裡 -->
+</div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem("calendarEvents")) || [];
+    let events = JSON.parse(localStorage.getItem("ai_events")) || [];
 
-    const types = [
-        { key: "市長", tag: "🔴 重要行程", color: "#ff5252" },
-        { key: "記者會", tag: "🟠 媒體活動", color: "#fb8c00" },
-        { key: "會議", tag: "🔵 內部會議", color: "#2196f3" },
-        { key: "拍攝", tag: "🎥 影像攝影", color: "#e91e63" },
-        { key: "現勘", tag: "🚧 現場勘查", color: "#00bcd4" }
+    const categories = [
+        { key: "市長", name: "🔴 市長行程", color: "#ff5252" },
+        { key: "記者會", name: "🟠 媒體活動", color: "#ff9800" },
+        { key: "會議", name: "🔵 公務會議", color: "#2979ff" },
+        { key: "考察", name: "🟢 現勘考察", color: "#00c853" }
     ];
 
-    function analyze() {
+    function smartAdd() {
         const raw = document.getElementById("inputText").value.trim();
-        if(!raw) return;
+        if (!raw) return;
 
+        // 1. AI 拆解日期
         const dateMatch = raw.match(/(\d{1,2})[\/\.月](\d{1,2})/);
-        const timeMatch = raw.match(/(\d{1,2})[:：](\d{2})/);
+        const timeMatch = raw.match(/(\d{1,2})[:：](\d{2})/) || raw.match(/(早上|下午|晚上)\d{1,2}點/);
 
         const m = dateMatch ? parseInt(dateMatch[1]) : (new Date().getMonth() + 1);
         const d = dateMatch ? parseInt(dateMatch[2]) : new Date().getDate();
         const t = timeMatch ? timeMatch[0] : "全天";
 
-        const year = new Date().getFullYear();
-        const weekDay = ["週日","週一","週二","週三","週四","週五","週六"][new Date(year, m-1, d).getDay()];
+        // 2. AI 拆解標題 (嘗試從第一行或關鍵字後抓取)
+        let cleanNote = raw.replace(/(\d{1,2})[\/\.月](\d{1,2})/, "").trim(); // 去除日期文字
+        let lines = cleanNote.split(/[\s\n]+/);
+        let title = lines[0].length < 15 ? lines[0] : "未命名事件";
+        let note = cleanNote;
 
-        let category = "📌 一般事項";
-        let color = "#00e676";
-        types.forEach(item => {
-            if(raw.includes(item.key)) { category = item.tag; color = item.color; }
-        });
+        // 3. 自動分類
+        let cat = { name: "📌 一般事項", color: "#607d8b" };
+        categories.forEach(c => { if (raw.includes(c.key)) cat = c; });
 
-        db.push({ m, d, weekDay, t, category, color, note: raw, id: Date.now() });
-        db.sort((a,b) => a.m !== b.m ? a.m - b.m : a.day - b.day);
-        
-        localStorage.setItem("calendarEvents", JSON.stringify(db));
+        // 計算星期
+        const weekDay = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"][new Date(2024, m - 1, d).getDay()];
+
+        events.push({ m, d, weekDay, t, title, note, cat, id: Date.now() });
+        save();
+    }
+
+    function save() {
+        // 排序：先比月份再比日期
+        events.sort((a, b) => a.m !== b.m ? a.m - b.m : a.day - b.day);
+        localStorage.setItem("ai_events", JSON.stringify(events));
         document.getElementById("inputText").value = "";
         render();
     }
 
     function render() {
-        const query = document.getElementById("search").value.toLowerCase();
-        const container = document.getElementById("timeline");
-        container.innerHTML = "";
-
+        const area = document.getElementById("calendarArea");
+        area.innerHTML = "";
         let currentM = -1;
-        db.filter(ev => ev.note.toLowerCase().includes(query)).forEach(ev => {
-            if(ev.m !== currentM) {
+
+        events.forEach(ev => {
+            if (ev.m !== currentM) {
                 currentM = ev.m;
-                container.innerHTML += `<div class="month-header">${currentM} 月份</div>`;
+                area.innerHTML += `<div class="month-divider">${currentM}月</div>`;
             }
 
-            container.innerHTML += `
-                <div class="event-block">
-                    <div class="color-bar" style="background:${ev.color}"></div>
-                    <div class="cal-box">
-                        <div class="cal-month">${ev.m}月</div>
-                        <div class="cal-date">${ev.d}</div>
-                        <div class="cal-day">${ev.weekDay}</div>
+            area.innerHTML += `
+                <div class="event-card">
+                    <div class="date-side">
+                        <div class="day-num">${ev.d}</div>
+                        <div class="day-week">${ev.weekDay}</div>
                     </div>
-                    <div class="info-box">
-                        <div class="info-top">
-                            <div class="info-time">🕒 ${ev.t}</div>
-                            <div class="info-tag">${ev.category}</div>
+                    <div class="content-side">
+                        <div class="tag-row">
+                            <span class="time-text">🕒 ${ev.t}</span>
+                            <span class="type-tag" style="background:${ev.cat.color}">${ev.cat.name}</span>
                         </div>
-                        <div class="info-text">${ev.note}</div>
+                        <div class="event-title">${ev.title}</div>
+                        <div class="event-note">${ev.note}</div>
                     </div>
                 </div>
             `;
         });
     }
 
-    function clearData() { if(confirm("確定刪除所有日曆資料？")) { db = []; localStorage.clear(); render(); } }
-
+    function reset() { if(confirm("確定清空嗎？")) { events = []; save(); } }
     render();
 </script>
 
