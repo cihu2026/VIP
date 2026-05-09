@@ -1,164 +1,447 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>📅 AI 智慧日曆排程</title>
-    <style>
-        :root {
-            --bg: #0f1115;
-            --card: #1b1f27;
-            --primary: #00c853;
-            --border: #2d3440;
-        }
+<meta charset="UTF-8">
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Noto Sans TC", sans-serif; }
-        body { background: var(--bg); color: #e2e8f0; padding: 16px; line-height: 1.5; }
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
 
-        /* 輸入區優化 */
-        .header-box { text-align: center; margin-bottom: 20px; }
-        .input-area { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 25px; border: 1px solid var(--border); }
-        textarea { 
-            width: 100%; min-height: 100px; background: #11151c; border: 1px solid #333; 
-            color: #fff; padding: 15px; border-radius: 15px; font-size: 16px; resize: none; outline: none;
-        }
-        .btns { display: flex; gap: 10px; margin-top: 12px; }
-        .btn { flex: 1; padding: 14px; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.2s; }
-        .btn-add { background: linear-gradient(135deg, #00c853, #0091ea); color: white; }
-        .btn-clear { background: #2d3440; color: #ff5252; }
+<title>🌿 後慈湖 VIP 警示日曆</title>
 
-        /* 月份分隔線 */
-        .month-divider { 
-            margin: 30px 0 15px; display: flex; align-items: center; 
-            font-size: 20px; font-weight: 900; color: var(--primary);
-        }
-        .month-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); margin-left: 15px; }
+<style>
 
-        /* 日曆一格一格的設計 */
-        .calendar-grid { display: flex; flex-direction: column; gap: 12px; }
-        
-        .event-card {
-            background: var(--card); border-radius: 18px; border: 1px solid var(--border);
-            display: flex; overflow: hidden; animation: slideIn 0.3s ease;
-        }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Noto Sans TC",sans-serif;
+}
 
-        /* 左側日期區塊 */
-        .date-side {
-            width: 75px; background: #242a35; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; border-right: 1px solid var(--border);
-        }
-        .day-num { font-size: 28px; font-weight: 900; color: #fff; line-height: 1; }
-        .day-week { font-size: 12px; margin-top: 4px; opacity: 0.6; }
+body{
+    background:#0f1115;
+    color:white;
+    padding:18px;
+}
 
-        /* 右側內容區塊 */
-        .content-side { flex: 1; padding: 15px; position: relative; }
-        .tag-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-        .type-tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 700; color: #fff; }
-        .time-text { font-size: 14px; font-weight: 700; color: #0091ea; }
-        
-        .event-title { font-size: 17px; font-weight: 900; color: #fff; margin-bottom: 4px; }
-        .event-note { font-size: 14px; opacity: 0.7; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.title{
+    text-align:center;
+    font-size:34px;
+    font-weight:900;
+    margin-top:10px;
+}
 
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-    </style>
+.sub{
+    text-align:center;
+    opacity:.7;
+    margin-top:8px;
+    margin-bottom:25px;
+}
+
+.card{
+    background:#1b1f27;
+    border-radius:24px;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+.today{
+
+    text-align:center;
+
+    font-size:26px;
+
+    font-weight:900;
+}
+
+.today-status{
+
+    margin-top:15px;
+
+    padding:18px;
+
+    border-radius:20px;
+
+    font-size:24px;
+
+    font-weight:900;
+}
+
+.event-card{
+
+    background:#1e2633;
+
+    padding:18px;
+
+    border-radius:20px;
+
+    margin-top:14px;
+}
+
+.event-date{
+
+    font-size:24px;
+
+    font-weight:900;
+}
+
+.event-time{
+
+    margin-top:8px;
+
+    font-size:18px;
+}
+
+.event-type{
+
+    margin-top:10px;
+
+    font-size:18px;
+
+    font-weight:800;
+}
+
+.event-note{
+
+    margin-top:10px;
+
+    opacity:.85;
+
+    line-height:1.7;
+}
+
+.month-title{
+
+    margin-top:24px;
+
+    margin-bottom:12px;
+
+    font-size:28px;
+
+    font-weight:900;
+}
+
+.footer{
+
+    text-align:center;
+
+    opacity:.45;
+
+    margin-top:30px;
+
+    font-size:13px;
+}
+
+</style>
+
 </head>
+
 <body>
 
-<div class="header-box">
-    <h2>🌿 AI 智慧自動排程</h2>
+<div class="title">
+🌿 後慈湖 VIP 警示日曆
 </div>
 
-<div class="input-area">
-    <textarea id="inputText" placeholder="直接貼上 LINE 訊息...&#10;範例：7/20 早上10:00 召開記者會 (地點：大禮堂)"></textarea>
-    <div class="btns">
-        <button class="btn btn-add" onclick="smartAdd()">🤖 AI 拆解並加入</button>
-        <button class="btn btn-clear" onclick="reset()">清空</button>
-    </div>
+<div class="sub">
+Google 表單同步版
 </div>
 
-<div id="calendarArea" class="calendar-grid">
-    <!-- 自動分類的格子會出現在這裡 -->
+<div class="card">
+
+<div class="today">
+📅 今日狀態
+</div>
+
+<div
+id="todayStatus"
+class="today-status">
+
+⏳ 讀取中...
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>
+📌 未來 VIP 活動
+</h2>
+
+<div id="timeline"></div>
+
+</div>
+
+<div class="footer">
+VIP Alert Dashboard
 </div>
 
 <script>
-    let events = JSON.parse(localStorage.getItem("ai_events")) || [];
 
-    const categories = [
-        { key: "市長", name: "🔴 市長行程", color: "#ff5252" },
-        { key: "記者會", name: "🟠 媒體活動", color: "#ff9800" },
-        { key: "會議", name: "🔵 公務會議", color: "#2979ff" },
-        { key: "考察", name: "🟢 現勘考察", color: "#00c853" }
-    ];
+// 🌿 Google Sheet CSV網址
 
-    function smartAdd() {
-        const raw = document.getElementById("inputText").value.trim();
-        if (!raw) return;
+const SHEET_URL =
+"https://docs.google.com/spreadsheets/d/你的ID/export?format=csv";
 
-        // 1. AI 拆解日期
-        const dateMatch = raw.match(/(\d{1,2})[\/\.月](\d{1,2})/);
-        const timeMatch = raw.match(/(\d{1,2})[:：](\d{2})/) || raw.match(/(早上|下午|晚上)\d{1,2}點/);
+// 🌿 AI分類
 
-        const m = dateMatch ? parseInt(dateMatch[1]) : (new Date().getMonth() + 1);
-        const d = dateMatch ? parseInt(dateMatch[2]) : new Date().getDate();
-        const t = timeMatch ? timeMatch[0] : "全天";
+function getType(text){
 
-        // 2. AI 拆解標題 (嘗試從第一行或關鍵字後抓取)
-        let cleanNote = raw.replace(/(\d{1,2})[\/\.月](\d{1,2})/, "").trim(); // 去除日期文字
-        let lines = cleanNote.split(/[\s\n]+/);
-        let title = lines[0].length < 15 ? lines[0] : "未命名事件";
-        let note = cleanNote;
+    text = text || "";
 
-        // 3. 自動分類
-        let cat = { name: "📌 一般事項", color: "#607d8b" };
-        categories.forEach(c => { if (raw.includes(c.key)) cat = c; });
+    if(
+        text.includes("市長")
+        ||
+        text.includes("VIP")
+        ||
+        text.includes("貴賓")
+    ){
 
-        // 計算星期
-        const weekDay = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"][new Date(2024, m - 1, d).getDay()];
-
-        events.push({ m, d, weekDay, t, title, note, cat, id: Date.now() });
-        save();
+        return {
+            type:"🔴 VIP活動",
+            color:"#ff5252"
+        };
     }
 
-    function save() {
-        // 排序：先比月份再比日期
-        events.sort((a, b) => a.m !== b.m ? a.m - b.m : a.day - b.day);
-        localStorage.setItem("ai_events", JSON.stringify(events));
-        document.getElementById("inputText").value = "";
-        render();
+    if(
+        text.includes("拍攝")
+        ||
+        text.includes("攝影")
+    ){
+
+        return {
+            type:"🟣 拍攝活動",
+            color:"#9c27b0"
+        };
     }
 
-    function render() {
-        const area = document.getElementById("calendarArea");
-        area.innerHTML = "";
-        let currentM = -1;
+    if(
+        text.includes("記者會")
+    ){
 
-        events.forEach(ev => {
-            if (ev.m !== currentM) {
-                currentM = ev.m;
-                area.innerHTML += `<div class="month-divider">${currentM}月</div>`;
+        return {
+            type:"🟠 記者會",
+            color:"#ff9800"
+        };
+    }
+
+    if(
+        text.includes("導覽")
+    ){
+
+        return {
+            type:"🟢 導覽需求",
+            color:"#00c853"
+        };
+    }
+
+    return {
+        type:"📌 一般活動",
+        color:"#2979ff"
+    };
+}
+
+// 🌿 讀Google資料
+
+async function loadSheet(){
+
+    try{
+
+        const res =
+        await fetch(SHEET_URL);
+
+        const csv =
+        await res.text();
+
+        parseCSV(csv);
+
+    }catch(err){
+
+        console.error(err);
+
+        document.getElementById(
+            "todayStatus"
+        ).innerHTML =
+        "❌ 無法讀取 Google Sheet";
+    }
+}
+
+// 🌿 解析CSV
+
+function parseCSV(csv){
+
+    const rows =
+    csv.split("\n").slice(1);
+
+    let events = [];
+
+    rows.forEach(r=>{
+
+        const cols = r.split(",");
+
+        if(cols.length >= 5){
+
+            events.push({
+
+                date:cols[1],
+                time:cols[2],
+                event:cols[3],
+                people:cols[4],
+                note:cols[5] || ""
+            });
+        }
+    });
+
+    renderEvents(events);
+}
+
+// 🌿 顯示
+
+function renderEvents(events){
+
+    const timeline =
+    document.getElementById("timeline");
+
+    timeline.innerHTML = "";
+
+    // 今天
+
+    const today =
+    new Date();
+
+    const todayText =
+    `${today.getMonth()+1}/${today.getDate()}`;
+
+    let todayVip = false;
+
+    // 月份群組
+
+    let grouped = {};
+
+    events.forEach(e=>{
+
+        const month =
+        parseInt(
+            e.date.split(/[\/月]/)[0]
+        );
+
+        if(!grouped[month]){
+
+            grouped[month] = [];
+        }
+
+        grouped[month].push(e);
+
+        // 今日VIP判斷
+
+        if(
+            e.date.includes(todayText)
+        ){
+
+            const all =
+            `${e.event} ${e.note}`;
+
+            if(
+                all.includes("市長")
+                ||
+                all.includes("VIP")
+                ||
+                all.includes("貴賓")
+            ){
+
+                todayVip = true;
             }
+        }
+    });
 
-            area.innerHTML += `
-                <div class="event-card">
-                    <div class="date-side">
-                        <div class="day-num">${ev.d}</div>
-                        <div class="day-week">${ev.weekDay}</div>
-                    </div>
-                    <div class="content-side">
-                        <div class="tag-row">
-                            <span class="time-text">🕒 ${ev.t}</span>
-                            <span class="type-tag" style="background:${ev.cat.color}">${ev.cat.name}</span>
-                        </div>
-                        <div class="event-title">${ev.title}</div>
-                        <div class="event-note">${ev.note}</div>
-                    </div>
+    // 今日狀態
+
+    const status =
+    document.getElementById("todayStatus");
+
+    if(todayVip){
+
+        status.innerHTML =
+        "🔴 今日有 VIP / 貴賓活動";
+
+        status.style.background =
+        "#ff5252";
+
+    }else{
+
+        status.innerHTML =
+        "🟢 今日無特殊貴賓";
+
+        status.style.background =
+        "#00c853";
+    }
+
+    // 月曆
+
+    for(let month in grouped){
+
+        timeline.innerHTML += `
+
+        <div class="month-title">
+            📅 ${month} 月
+        </div>
+        `;
+
+        grouped[month].forEach(e=>{
+
+            const info =
+            getType(
+                `${e.event} ${e.note}`
+            );
+
+            timeline.innerHTML += `
+
+            <div
+            class="event-card"
+
+            style="
+            border-left:
+            8px solid ${info.color};
+            ">
+
+                <div class="event-date">
+                    ${e.date}
                 </div>
+
+                <div class="event-time">
+                    🕒 ${e.time}
+                </div>
+
+                <div class="event-type">
+                    ${info.type}
+                </div>
+
+                <div class="event-note">
+
+                    📌 ${e.event}
+
+                    <br><br>
+
+                    👥 ${e.people}
+
+                    <br><br>
+
+                    📝 ${e.note}
+
+                </div>
+
+            </div>
             `;
         });
     }
+}
 
-    function reset() { if(confirm("確定清空嗎？")) { events = []; save(); } }
-    render();
+// 🌿 啟動
+
+loadSheet();
+
 </script>
 
 </body>
