@@ -3,149 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>📌 後慈湖行程看板 (即時更新版)</title>
+    <title>📅 後慈湖行程日曆 (大字版)</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
         :root {
-            --primary-bg: #0f172a;
-            --vip-red: #ef4444;
-            --confirm-orange: #f59e0b;
-            --future-blue: #3b82f6;
+            --bg: #0f172a;
+            --card: rgba(255,255,255,0.07);
+            --vip: #ff4d4d;
+            --pending: #fbbf24;
+            --today: #3b82f6;
         }
-        *{ margin:0; padding:0; box-sizing:border-box; font-family: "SF Pro Display", "Noto Sans TC", sans-serif; }
-        body{ background: radial-gradient(circle at top, #1e293b 0%, var(--primary-bg) 100%); color:#e2e8f0; padding:15px; min-height:100vh; }
-        
-        .header-section { text-align: center; margin: 20px 0; }
-        .title{ font-size:28px; font-weight:900; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
-        
-        .status-bar{ background: linear-gradient(135deg, #1e40af, #3b82f6); padding:15px; border-radius:18px; font-size:18px; font-weight:900; text-align:center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        
-        #detail { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 15px; }
-        .detail-card{ background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding:18px; border-radius:20px; position: relative; animation: fadeIn 0.4s ease forwards; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: "Noto Sans TC", sans-serif; }
+        body { background: var(--bg); color: #e2e8f0; padding: 10px; min-height: 100vh; }
 
-        /* 特殊狀態樣式 */
-        .is-confirm { border: 2px solid var(--confirm-orange); background: rgba(245, 158, 11, 0.1); }
-        .is-confirm .badge { background: var(--confirm-orange) !important; }
+        .header { text-align: center; margin: 15px 0; }
+        .month-title { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: 1px; }
+
+        /* 日曆主體 - 加大格子 */
+        .calendar-grid { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 6px; 
+            background: var(--card); 
+            padding: 12px; 
+            border-radius: 24px; 
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .weekday { text-align: center; font-size: 16px; font-weight: 700; opacity: 0.6; padding-bottom: 8px; color: #94a3b8; }
         
-        .badge{ position: absolute; top: 18px; right: 18px; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:900; }
-        h3 { margin-bottom: 12px; font-size: 18px; color: #60a5fa; padding-right: 60px; }
+        .day { 
+            aspect-ratio: 0.9 / 1; 
+            background: rgba(255,255,255,0.03); 
+            border-radius: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 20px; /* 加大日期數字 */
+            font-weight: 700;
+            cursor: pointer; 
+            position: relative;
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
         
-        .info-row { font-size: 14px; margin-bottom: 6px; display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
-        .info-label { opacity: 0.5; min-width: 20px; }
+        /* 今日高亮 */
+        .day.today { 
+            border: 3px solid var(--today); 
+            background: rgba(59, 130, 246, 0.25);
+            animation: pulse-today 2s infinite;
+        }
+        @keyframes pulse-today {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+            70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        /* 行程小圓點 - 加大 */
+        .dots { display: flex; gap: 3px; margin-top: 5px; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+        /* 下方行程清單 - 加大字體 */
+        .details-title { margin: 25px 0 15px; font-size: 22px; font-weight: 900; color: #fff; padding-left: 5px; }
+        .event-list { display: flex; flex-direction: column; gap: 12px; padding-bottom: 40px; }
         
-        .note-box { margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; font-size: 13px; border-left: 3px solid #64748b; color: #cbd5e1; white-space: pre-wrap; }
+        .event-item { 
+            background: var(--card); 
+            padding: 20px; 
+            border-radius: 20px; 
+            border-left: 8px solid var(--today);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .event-item.vip { border-left-color: var(--vip); background: rgba(255, 77, 77, 0.05); }
+        .event-item.pending { border-left-color: var(--pending); background: rgba(251, 191, 36, 0.05); }
+
+        .time-tag { font-size: 16px; font-weight: 900; color: #60a5fa; margin-bottom: 8px; }
+        .name-row { font-size: 22px; font-weight: 900; margin-bottom: 5px; color: #fff; }
+        .info-text { font-size: 18px; margin-bottom: 6px; opacity: 0.9; }
+        .note-box { 
+            margin-top: 12px; padding: 15px; 
+            background: rgba(0,0,0,0.3); 
+            border-radius: 12px; font-size: 17px; 
+            border-left: 4px solid #64748b; color: #cbd5e1; 
+        }
         
-        .date-tag { font-size: 12px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; margin-right: 5px; color: #fff; }
+        .type-badge { padding: 2px 8px; border-radius: 6px; font-size: 14px; margin-left: 8px; vertical-align: middle; }
     </style>
 </head>
 <body>
 
-<div class="header-section">
-    <div class="title">📌 後慈湖行程看板</div>
+<div class="header">
+    <div id="monthDisplay" class="month-title">載入中...</div>
 </div>
 
-<div id="todayStatus" class="status-bar">⏳ 同步資料中...</div>
+<div class="calendar-grid" id="calendar">
+    <div class="weekday">日</div><div class="weekday">一</div><div class="weekday">二</div>
+    <div class="weekday">三</div><div class="weekday">四</div><div class="weekday">五</div><div class="weekday">六</div>
+</div>
 
-<div id="detail"></div>
+<div class="details-title">📌 <span id="selectedDateText">今日行程</span></div>
+<div id="eventList" class="event-list"></div>
 
 <script>
 const SHEET_ID = "1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg";
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
-function getStatusInfo(eventText = "", noteText = ""){
-    const fullText = (eventText + noteText).toUpperCase();
-    
-    // 優先判斷是否待確認
-    if(fullText.includes("待確認") || fullText.includes("未定") || fullText.includes("暫定")){
-        return { label: "⚠️ 待確認", color: "#f59e0b", className: "is-confirm" };
-    }
-    if(fullText.includes("市長") || fullText.includes("VIP") || fullText.includes("貴賓")){
-        return { label: "⭐ VIP", color: "#ef4444", className: "is-vip" };
-    }
-    if(fullText.includes("拍攝") || fullText.includes("攝影")){
-        return { label: "📷 拍攝", color: "#a855f7", className: "" };
-    }
-    return { label: "📅 行程", color: "#3b82f6", className: "" };
-}
+let allEvents = [];
+const now = new Date();
 
-async function loadSheet(){
-    try{
+async function init() {
+    try {
         const res = await fetch(`${SHEET_URL}&cb=${new Date().getTime()}`);
         const csv = await res.text();
-        parseCSV(csv);
-    }catch(err){
-        document.getElementById("todayStatus").innerHTML = "❌ 連線失敗";
-    }
+        allEvents = parseCSV(csv);
+        renderCalendar(now.getFullYear(), now.getMonth());
+        // 預設顯示今天
+        showEvents(now.getMonth() + 1, now.getDate());
+    } catch (e) { document.getElementById("monthDisplay").innerText = "❌ 讀取失敗"; }
 }
 
-function parseCSV(csv){
-    const lines = csv.split(/\r?\n/);
-    const result = [];
+function parseCSV(csv) {
+    const lines = csv.split(/\r?\n/).slice(1);
     const pattern = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-
-    for(let i = 1; i < lines.length; i++){
-        if(!lines[i].trim()) continue;
-        const cols = lines[i].split(pattern).map(v => v.replace(/^"|"$/g, '').trim());
-        if(cols.length >= 7){
-            result.push({
-                date: cols[1], time: cols[2], name: cols[3], 
-                event: cols[4], people: cols[5], phone: cols[6], note: cols[7] || ""
-            });
-        }
-    }
-    render(result);
+    return lines.map(line => {
+        const c = line.split(pattern).map(v => v.replace(/^"|"$/g, '').trim());
+        if(c.length < 7 || !c[1].includes("/")) return null;
+        const [m, d] = c[1].split("/").map(Number);
+        return { month: m, day: d, time: c[2], name: c[3], event: c[4], people: c[5], phone: c[6], note: c[7] || "" };
+    }).filter(e => e);
 }
 
-function render(events){
-    const detail = document.getElementById("detail");
-    const status = document.getElementById("todayStatus");
-    const now = new Date();
-    
-    // 取得今天凌晨的時間戳用於比較
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+function renderCalendar(year, month) {
+    const cal = document.getElementById("calendar");
+    document.getElementById("monthDisplay").innerText = `${year}年 ${month + 1}月`;
 
-    detail.innerHTML = "";
-    let activeCount = 0;
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    events.forEach(e => {
-        if(!e.date || !e.date.includes("/")) return;
+    document.querySelectorAll('.day').forEach(d => d.remove());
 
-        // 解析日期 (假設格式為 MM/DD)
-        const parts = e.date.split("/");
-        const eventDate = new Date(now.getFullYear(), parseInt(parts[0]) - 1, parseInt(parts[1])).getTime();
+    for(let i=0; i<firstDay; i++) {
+        const div = document.createElement("div");
+        div.className = "day";
+        cal.appendChild(div);
+    }
 
-        // --- 過濾邏輯：只顯示今天(含)以後的行程 ---
-        if(eventDate < today) return;
+    for(let d=1; d<=daysInMonth; d++) {
+        const div = document.createElement("div");
+        div.className = "day";
+        if(d === now.getDate() && month === now.getMonth()) div.classList.add("today");
+        
+        div.innerHTML = `<span>${d}</span>`;
+        
+        const dayEvents = allEvents.filter(e => e.month === (month + 1) && e.day === d);
+        if(dayEvents.length > 0) {
+            const dotContainer = document.createElement("div");
+            dotContainer.className = "dots";
+            dayEvents.slice(0,4).forEach(ev => {
+                const dot = document.createElement("div");
+                dot.className = "dot";
+                const t = (ev.event + ev.note).toUpperCase();
+                if(t.includes("VIP") || t.includes("市長")) dot.style.backgroundColor = "var(--vip)";
+                else if(t.includes("待確認")) dot.style.backgroundColor = "var(--pending)";
+                else dot.style.backgroundColor = "#fff";
+                dotContainer.appendChild(dot);
+            });
+            div.appendChild(dotContainer);
+        }
 
-        activeCount++;
-        const state = getStatusInfo(e.event, e.note);
+        div.onclick = () => {
+            document.querySelectorAll('.day').forEach(el => el.style.borderColor = "transparent");
+            div.style.borderColor = "var(--today)";
+            showEvents(month + 1, d);
+            window.scrollTo({ top: document.querySelector('.details-title').offsetTop - 20, behavior: 'smooth' });
+        };
+        cal.appendChild(div);
+    }
+}
 
-        detail.innerHTML += `
-            <div class="detail-card ${state.className}">
-                <span class="badge" style="background:${state.color}">${state.label}</span>
-                <h3><span class="date-tag">${e.date}</span> ${e.time}</h3>
-                <div class="info-row"><span class="info-label">👤</span><span><b>${e.name}</b> (${e.people}人)</span></div>
-                <div class="info-row"><span class="info-label">📌</span><span>${e.event}</span></div>
-                <div class="info-row"><span class="info-label">📞</span><span>${e.phone}</span></div>
-                ${e.note ? `<div class="note-box"><b>備註：</b><br>${e.note}</div>` : ''}
+function showEvents(m, d) {
+    const list = document.getElementById("eventList");
+    document.getElementById("selectedDateText").innerText = `${m}月${d}日 行程`;
+    list.innerHTML = "";
+
+    const filtered = allEvents.filter(e => e.month === m && e.day === d)
+                              .sort((a,b) => a.time.localeCompare(b.time));
+
+    if(filtered.length === 0) {
+        list.innerHTML = "<div style='opacity:0.5; text-align:center; padding:40px; font-size:20px;'>☕ 此日期尚無行程</div>";
+        return;
+    }
+
+    filtered.forEach(e => {
+        const t = (e.event + e.note).toUpperCase();
+        let typeClass = "";
+        let typeLabel = "";
+        if(t.includes("VIP") || t.includes("市長")) { 
+            typeClass = "vip"; 
+            typeLabel = "<span class='type-badge' style='background:var(--vip)'>⭐ VIP</span>"; 
+        }
+        else if(t.includes("待確認")) { 
+            typeClass = "pending"; 
+            typeLabel = "<span class='type-badge' style='background:var(--pending); color:#000'>⚠️ 待確認</span>"; 
+        }
+
+        list.innerHTML += `
+            <div class="event-item ${typeClass}">
+                <div class="time-tag">⏰ ${e.time} ${typeLabel}</div>
+                <div class="name-row">${e.name} <span style="font-size:18px; opacity:0.7">(${e.people}人)</span></div>
+                <div class="info-text">📌 ${e.event}</div>
+                <div class="info-text">📞 ${e.phone}</div>
+                ${e.note ? `<div class="note-box"><b>💡 備註：</b><br>${e.note}</div>` : ""}
             </div>
         `;
     });
-
-    if(activeCount > 0){
-        status.innerHTML = `✅ 今日及後續共有 ${activeCount} 筆行程`;
-        status.style.background = "linear-gradient(135deg, #1e40af, #3b82f6)";
-    } else {
-        status.innerHTML = "✨ 目前無待辦行程";
-        status.style.background = "linear-gradient(135deg, #059669, #10b981)";
-        detail.innerHTML = "<div style='opacity:0.3; grid-column:1/-1; text-align:center; padding:50px;'>目前沒有待處理的預約</div>";
-    }
 }
 
-loadSheet();
-setInterval(loadSheet, 30000);
+init();
+// 每 5 分鐘自動刷新一次資料
+setInterval(init, 300000);
 </script>
+
 </body>
 </html>
