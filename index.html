@@ -9,7 +9,7 @@ initial-scale=1.0,
 maximum-scale=1.0,
 user-scalable=no">
 
-<title>🌿 後慈湖 VIP 警示日曆</title>
+<title>🌿 後慈湖 VIP 行事曆</title>
 
 <style>
 
@@ -23,7 +23,7 @@ user-scalable=no">
 body{
     background:#0f1115;
     color:white;
-    padding:18px;
+    padding:16px;
 }
 
 .title{
@@ -51,7 +51,7 @@ body{
 
     text-align:center;
 
-    font-size:26px;
+    font-size:28px;
 
     font-weight:900;
 }
@@ -67,9 +67,62 @@ body{
     font-size:24px;
 
     font-weight:900;
+
+    text-align:center;
 }
 
-.event-card{
+.calendar{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(7,1fr);
+
+    gap:8px;
+
+    margin-top:20px;
+}
+
+.day{
+
+    background:#1e2633;
+
+    border-radius:18px;
+
+    min-height:90px;
+
+    padding:10px;
+
+    position:relative;
+}
+
+.day-number{
+
+    font-size:18px;
+
+    font-weight:900;
+}
+
+.event{
+
+    margin-top:8px;
+
+    padding:4px 6px;
+
+    border-radius:10px;
+
+    font-size:12px;
+
+    font-weight:800;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-overflow:ellipsis;
+}
+
+.detail-card{
 
     background:#1e2633;
 
@@ -77,50 +130,7 @@ body{
 
     border-radius:20px;
 
-    margin-top:14px;
-}
-
-.event-date{
-
-    font-size:24px;
-
-    font-weight:900;
-}
-
-.event-time{
-
-    margin-top:8px;
-
-    font-size:18px;
-}
-
-.event-type{
-
-    margin-top:10px;
-
-    font-size:18px;
-
-    font-weight:800;
-}
-
-.event-note{
-
-    margin-top:10px;
-
-    opacity:.85;
-
-    line-height:1.7;
-}
-
-.month-title{
-
-    margin-top:24px;
-
-    margin-bottom:12px;
-
-    font-size:28px;
-
-    font-weight:900;
+    margin-top:15px;
 }
 
 .footer{
@@ -141,11 +151,11 @@ body{
 <body>
 
 <div class="title">
-🌿 後慈湖 VIP 警示日曆
+🌿 後慈湖 VIP 行事曆
 </div>
 
 <div class="sub">
-Google 表單同步版
+Google Sheet 同步版
 </div>
 
 <div class="card">
@@ -167,23 +177,37 @@ class="today-status">
 <div class="card">
 
 <h2>
-📌 未來 VIP 活動
+📅 本月行事曆
 </h2>
 
-<div id="timeline"></div>
+<div
+class="calendar"
+id="calendar">
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>
+📌 活動詳細資訊
+</h2>
+
+<div id="detail"></div>
 
 </div>
 
 <div class="footer">
-VIP Alert Dashboard
+VIP Calendar Dashboard
 </div>
 
 <script>
 
-// 🌿 Google Sheet CSV網址
+// 🌿 Google Sheet CSV
 
 const SHEET_URL =
-"https://docs.google.com/spreadsheets/d/你的ID/export?format=csv";
+"https://docs.google.com/spreadsheets/d/1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg/export?format=csv";
 
 // 🌿 AI分類
 
@@ -200,7 +224,7 @@ function getType(text){
     ){
 
         return {
-            type:"🔴 VIP活動",
+            label:"VIP",
             color:"#ff5252"
         };
     }
@@ -212,18 +236,8 @@ function getType(text){
     ){
 
         return {
-            type:"🟣 拍攝活動",
+            label:"拍攝",
             color:"#9c27b0"
-        };
-    }
-
-    if(
-        text.includes("記者會")
-    ){
-
-        return {
-            type:"🟠 記者會",
-            color:"#ff9800"
         };
     }
 
@@ -232,18 +246,18 @@ function getType(text){
     ){
 
         return {
-            type:"🟢 導覽需求",
+            label:"導覽",
             color:"#00c853"
         };
     }
 
     return {
-        type:"📌 一般活動",
+        label:"活動",
         color:"#2979ff"
     };
 }
 
-// 🌿 讀Google資料
+// 🌿 讀取 Google Sheet
 
 async function loadSheet(){
 
@@ -268,7 +282,7 @@ async function loadSheet(){
     }
 }
 
-// 🌿 解析CSV
+// 🌿 CSV解析
 
 function parseCSV(csv){
 
@@ -281,80 +295,157 @@ function parseCSV(csv){
 
         const cols = r.split(",");
 
-        if(cols.length >= 5){
+        if(cols.length >= 8){
 
             events.push({
 
                 date:cols[1],
                 time:cols[2],
-                event:cols[3],
-                people:cols[4],
-                note:cols[5] || ""
+                name:cols[3],
+                event:cols[4],
+                people:cols[5],
+                phone:cols[6],
+                note:cols[7]
             });
         }
     });
 
-    renderEvents(events);
+    renderCalendar(events);
 }
 
-// 🌿 顯示
+// 🌿 月曆
 
-function renderEvents(events){
+function renderCalendar(events){
 
-    const timeline =
-    document.getElementById("timeline");
+    const calendar =
+    document.getElementById("calendar");
 
-    timeline.innerHTML = "";
+    const detail =
+    document.getElementById("detail");
 
-    // 今天
+    calendar.innerHTML = "";
+
+    detail.innerHTML = "";
 
     const today =
     new Date();
 
-    const todayText =
-    `${today.getMonth()+1}/${today.getDate()}`;
+    const currentMonth =
+    today.getMonth()+1;
+
+    const daysInMonth =
+    new Date(
+        today.getFullYear(),
+        currentMonth,
+        0
+    ).getDate();
+
+    // 今日VIP判斷
 
     let todayVip = false;
 
-    // 月份群組
+    // 建立月曆
 
-    let grouped = {};
+    for(let day=1;day<=daysInMonth;day++){
 
-    events.forEach(e=>{
+        const dayDiv =
+        document.createElement("div");
 
-        const month =
-        parseInt(
-            e.date.split(/[\/月]/)[0]
-        );
+        dayDiv.className = "day";
 
-        if(!grouped[month]){
+        let html = `
 
-            grouped[month] = [];
-        }
+        <div class="day-number">
+            ${day}
+        </div>
+        `;
 
-        grouped[month].push(e);
+        // 找活動
 
-        // 今日VIP判斷
+        events.forEach(e=>{
 
-        if(
-            e.date.includes(todayText)
-        ){
+            if(!e.date) return;
 
-            const all =
-            `${e.event} ${e.note}`;
+            const match =
+            e.date.match(/\d{1,2}\/(\d{1,2})/);
 
-            if(
-                all.includes("市長")
-                ||
-                all.includes("VIP")
-                ||
-                all.includes("貴賓")
-            ){
+            if(match){
 
-                todayVip = true;
+                const eventDay =
+                parseInt(match[1]);
+
+                if(eventDay===day){
+
+                    const info =
+                    getType(
+                        `${e.event} ${e.note}`
+                    );
+
+                    html += `
+
+                    <div
+                    class="event"
+
+                    style="
+                    background:${info.color};
+                    ">
+
+                        ${info.label}
+
+                    </div>
+                    `;
+
+                    detail.innerHTML += `
+
+                    <div class="detail-card">
+
+                        <h3>
+                        📅 ${e.date}
+                        </h3>
+
+                        <br>
+
+                        🕒 ${e.time}
+                        <br><br>
+
+                        👤 ${e.name}
+                        <br><br>
+
+                        📌 ${e.event}
+                        <br><br>
+
+                        👥 ${e.people}
+                        <br><br>
+
+                        ☎️ ${e.phone}
+                        <br><br>
+
+                        📝 ${e.note}
+
+                    </div>
+                    `;
+
+                    // 今日VIP
+
+                    if(
+                        day===today.getDate()
+                    ){
+
+                        if(
+                            info.label==="VIP"
+                        ){
+
+                            todayVip = true;
+                        }
+                    }
+                }
             }
-        }
-    });
+        });
+
+        dayDiv.innerHTML = html;
+
+        calendar.appendChild(dayDiv);
+    }
 
     // 今日狀態
 
@@ -364,7 +455,7 @@ function renderEvents(events){
     if(todayVip){
 
         status.innerHTML =
-        "🔴 今日有 VIP / 貴賓活動";
+        "🔴 今日有 VIP / 貴賓";
 
         status.style.background =
         "#ff5252";
@@ -372,69 +463,10 @@ function renderEvents(events){
     }else{
 
         status.innerHTML =
-        "🟢 今日無特殊貴賓";
+        "🟢 今日正常";
 
         status.style.background =
         "#00c853";
-    }
-
-    // 月曆
-
-    for(let month in grouped){
-
-        timeline.innerHTML += `
-
-        <div class="month-title">
-            📅 ${month} 月
-        </div>
-        `;
-
-        grouped[month].forEach(e=>{
-
-            const info =
-            getType(
-                `${e.event} ${e.note}`
-            );
-
-            timeline.innerHTML += `
-
-            <div
-            class="event-card"
-
-            style="
-            border-left:
-            8px solid ${info.color};
-            ">
-
-                <div class="event-date">
-                    ${e.date}
-                </div>
-
-                <div class="event-time">
-                    🕒 ${e.time}
-                </div>
-
-                <div class="event-type">
-                    ${info.type}
-                </div>
-
-                <div class="event-note">
-
-                    📌 ${e.event}
-
-                    <br><br>
-
-                    👥 ${e.people}
-
-                    <br><br>
-
-                    📝 ${e.note}
-
-                </div>
-
-            </div>
-            `;
-        });
     }
 }
 
