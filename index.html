@@ -9,7 +9,7 @@ initial-scale=1.0,
 maximum-scale=1.0,
 user-scalable=no">
 
-<title>🌿 AI 特殊事件看板</title>
+<title>🌿 AI 特殊事件看板 PRO</title>
 
 <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 
@@ -32,7 +32,7 @@ body{
 
 .title{
     text-align:center;
-    font-size:32px;
+    font-size:34px;
     font-weight:900;
     margin-top:10px;
 }
@@ -42,6 +42,7 @@ body{
     opacity:.7;
     margin-top:8px;
     margin-bottom:25px;
+    line-height:1.6;
 }
 
 .card{
@@ -89,6 +90,14 @@ body{
     font-weight:800;
 }
 
+.btn.red{
+    background:linear-gradient(
+        135deg,
+        #ff5252,
+        #ff1744
+    );
+}
+
 .loading{
     text-align:center;
     margin-top:20px;
@@ -97,25 +106,6 @@ body{
 
 .result{
     margin-top:15px;
-}
-
-.badge{
-    display:inline-block;
-
-    padding:
-    8px 14px;
-
-    border-radius:999px;
-
-    margin:5px;
-
-    font-weight:800;
-
-    background:#ff5252;
-}
-
-.ok{
-    background:#00c853;
 }
 
 .event-card{
@@ -127,24 +117,29 @@ body{
     border-radius:20px;
 
     margin-top:15px;
-
-    border-left:8px solid #ff9800;
 }
 
-.event-time{
-    font-size:28px;
+.event-date{
+    font-size:26px;
     font-weight:900;
 }
 
-.event-type{
+.event-time{
     margin-top:8px;
+    font-size:20px;
+    font-weight:700;
+}
+
+.event-type{
+    margin-top:10px;
     font-size:18px;
+    font-weight:800;
 }
 
 .event-detail{
     margin-top:10px;
-    opacity:.8;
-    line-height:1.6;
+    opacity:.85;
+    line-height:1.7;
 }
 
 textarea{
@@ -155,7 +150,7 @@ textarea{
     border:none;
     border-radius:16px;
     padding:15px;
-    min-height:180px;
+    min-height:220px;
     font-size:14px;
 }
 
@@ -177,7 +172,7 @@ textarea{
 </div>
 
 <div class="sub">
-AI 自動分析群組截圖中的特殊安排
+手機截圖 → OCR辨識 → AI分析特殊安排
 </div>
 
 <div class="card">
@@ -200,6 +195,14 @@ onclick="scanImage()">
 
 </button>
 
+<button
+class="btn red"
+onclick="clearHistory()">
+
+🗑️ 清除全部紀錄
+
+</button>
+
 <div
 class="loading"
 id="loading">
@@ -212,7 +215,11 @@ id="loading">
 
 <div class="card">
 
-<div id="result" class="result"></div>
+<div
+id="result"
+class="result">
+
+</div>
 
 <textarea
 id="fullText"
@@ -223,12 +230,12 @@ placeholder="OCR辨識文字">
 </div>
 
 <div class="footer">
-AI Special Event Dashboard
+AI Special Event Dashboard PRO
 </div>
 
 <script>
 
-// 🌿 AI 智慧關鍵字
+// 🌿 AI智慧關鍵字
 
 const smartKeywords = [
 
@@ -311,6 +318,29 @@ document.getElementById("imageInput");
 const preview =
 document.getElementById("preview");
 
+const result =
+document.getElementById("result");
+
+const loading =
+document.getElementById("loading");
+
+const fullText =
+document.getElementById("fullText");
+
+// 🌿 自動恢復紀錄
+
+window.onload = ()=>{
+
+    let saved = JSON.parse(
+        localStorage.getItem("aiEvents")
+    ) || [];
+
+    if(saved.length > 0){
+
+        result.innerHTML = saved.join("");
+    }
+};
+
 // 🌿 預覽圖片
 
 imageInput.addEventListener("change",e=>{
@@ -332,7 +362,7 @@ imageInput.addEventListener("change",e=>{
     }
 });
 
-// 🌿 AI OCR
+// 🌿 OCR分析
 
 async function scanImage(){
 
@@ -347,10 +377,6 @@ async function scanImage(){
     }
 
     loading.style.display = "block";
-
-    result.innerHTML = "";
-
-    fullText.value = "";
 
     try{
 
@@ -379,7 +405,7 @@ async function scanImage(){
 
         loading.style.display = "none";
 
-        alert("OCR失敗");
+        alert("OCR辨識失敗");
     }
 }
 
@@ -395,8 +421,31 @@ function analyzeAI(text){
     </h2>
     `;
 
+    // 🌿 抓時間
+
     const timeMatch =
     text.match(/\d{1,2}[:：]\d{2}/g);
+
+    // 🌿 抓日期
+
+    const dateMatch =
+    text.match(
+        /\d{1,3}[\/\-年]\d{1,2}[\/\-月]\d{1,2}日?|\d{1,2}\/\d{1,2}|\d{1,2}月\d{1,2}日/g
+    );
+
+    // 🌿 今天 / 明天
+
+    let specialDay = "";
+
+    if(text.includes("今天")){
+
+        specialDay = "📍 今天";
+    }
+
+    if(text.includes("明天")){
+
+        specialDay = "📍 明天";
+    }
 
     let foundAny = false;
 
@@ -411,6 +460,11 @@ function analyzeAI(text){
             timeMatch[0] :
             "未找到時間";
 
+            let date =
+            dateMatch ?
+            dateMatch[0] :
+            "未找到日期";
+
             html += `
 
             <div
@@ -421,8 +475,12 @@ function analyzeAI(text){
             8px solid ${item.color};
             ">
 
+                <div class="event-date">
+                    ${date}
+                </div>
+
                 <div class="event-time">
-                    ${time}
+                    🕒 ${time}
                 </div>
 
                 <div class="event-type">
@@ -430,8 +488,14 @@ function analyzeAI(text){
                 </div>
 
                 <div class="event-detail">
+
+                    ${specialDay}
+
+                    <br><br>
+
                     偵測到：
                     ${item.word}
+
                 </div>
 
             </div>
@@ -453,7 +517,75 @@ function analyzeAI(text){
         `;
     }
 
-    result.innerHTML = html;
+    // 🌿 AI摘要
+
+    html += `
+
+    <div
+    class="event-card"
+
+    style="
+    border-left:
+    8px solid #00c853;
+    ">
+
+        <div class="event-type">
+            📅 AI 日期分析
+        </div>
+
+        <div class="event-detail">
+
+            ${
+                dateMatch
+                ?
+                "偵測日期：" + dateMatch.join("、")
+                :
+                "未找到日期"
+            }
+
+            <br><br>
+
+            ${
+                timeMatch
+                ?
+                "偵測時間：" + timeMatch.join("、")
+                :
+                "未找到時間"
+            }
+
+        </div>
+
+    </div>
+    `;
+
+    // 🌿 儲存歷史
+
+    let savedEvents = JSON.parse(
+        localStorage.getItem("aiEvents")
+    ) || [];
+
+    savedEvents.unshift(html);
+
+    localStorage.setItem(
+        "aiEvents",
+        JSON.stringify(savedEvents)
+    );
+
+    result.innerHTML =
+    savedEvents.join("");
+}
+
+// 🌿 清除紀錄
+
+function clearHistory(){
+
+    localStorage.removeItem("aiEvents");
+
+    result.innerHTML = "";
+
+    fullText.value = "";
+
+    alert("已清除全部紀錄");
 }
 
 </script>
