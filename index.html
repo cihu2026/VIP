@@ -173,7 +173,7 @@ function renderCal(m, y) {
         
         const dayEvents = allData.filter(x => x.m === (m+1) && x.d === d);
         if(dayEvents.length > 0) {
-            const isVip = dayEvents.some(x => (x.act+x.name+x.note).match(/VIP|市長|貴賓/));
+            const isVip = dayEvents.some(x => (x.act+x.name+x.note).match(/貴賓/));
             const dot = document.createElement("div");
             dot.className = isVip ? "dot vip" : "dot event";
             el.appendChild(dot);
@@ -198,7 +198,7 @@ function selectDate(m, d) {
     list.innerHTML = filtered.length ? "" : '<div id="empty-hint">本日尚無行程安排</div>';
 
     filtered.forEach(x => {
-        const isVip = (x.act+x.name+x.note).match(/VIP|市長|貴賓/);
+        const isVip = (x.act+x.name+x.note).match(/貴賓/);
         list.innerHTML += `
             <div class="card ${isVip ? 'is-vip' : ''}">
                 <span class="time-tag">預約時間：${x.time} ${isVip ? '<span class="vip-label">重要行程</span>' : ''}</span>
@@ -207,7 +207,7 @@ function selectDate(m, d) {
                     <div class="meta-item">活動項目：<b>${x.act}</b></div>
                     <div class="meta-item">聯繫電話：<b>${x.tel}</b></div>
                 </div>
-                ${x.note ? `<div class="note"><b>管理員備註：</b><br>${x.note}</div>` : ""}
+                ${x.note ? `<div class="note"><b>備註：</b><br>${x.note}</div>` : ""}
             </div>
         `;
     });
