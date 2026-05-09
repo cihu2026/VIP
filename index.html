@@ -2,107 +2,199 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📌 後慈湖行程監控系統</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>📌 後慈湖行程看板</title>
 <style>
-    /* ... (保留之前的 CSS 樣式) ... */
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
-    body{ background: #0f172a; color:#e2e8f0; font-family: "Noto Sans TC", sans-serif; padding:20px; }
-    .card{ background: rgba(255,255,255,0.05); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
-    .today-status { text-align: center; font-size: 24px; font-weight: 900; padding: 15px; border-radius: 15px; }
-    .detail-card { background: rgba(255,255,255,0.08); margin-bottom: 10px; padding: 15px; border-radius: 12px; border-left: 5px solid #3b82f6; }
-    .badge { padding: 2px 8px; border-radius: 5px; font-size: 12px; float: right; }
-    .info-row { margin: 5px 0; font-size: 15px; }
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap');
+
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family: "SF Pro Display", "Noto Sans TC", sans-serif;
+    }
+
+    body{
+        background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+        color:#e2e8f0;
+        padding:20px;
+        min-height:100vh;
+    }
+
+    .header-section { text-align: center; margin-bottom: 30px; }
+    .title{
+        font-size:32px; font-weight:900;
+        background: linear-gradient(to right, #fff, #94a3b8);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        letter-spacing: 2px;
+    }
+
+    .card{
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 30px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    /* 今日狀態區塊 */
+    .today-status{
+        padding:20px; border-radius:20px;
+        font-size:24px; font-weight:900; text-align:center;
+        transition: 0.5s;
+    }
+
+    /* 詳細資訊區塊 */
+    #detail { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
+
+    .detail-card{
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        padding:20px; border-radius:22px;
+        position: relative;
+        overflow: hidden;
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .info-row { font-size: 15px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+    .info-label { opacity: 0.6; min-width: 25px; font-size: 14px; }
+    .badge{ 
+        position: absolute; top: 20px; right: 20px;
+        padding:4px 12px; border-radius:8px; font-size:12px; font-weight:900; 
+    }
+
+    h3 { margin-bottom: 15px; font-size: 18px; color: #60a5fa; }
+    .note-box { 
+        margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); 
+        border-radius: 10px; font-size: 14px; border-left: 3px solid #64748b;
+    }
 </style>
 </head>
 <body>
 
-<div class="card">
-    <div id="todayStatus" class="today-status">🔄 正在連線至試算表...</div>
+<div class="header-section">
+    <div class="title">📌 後慈湖行程監控</div>
 </div>
 
 <div class="card">
-    <h2>🔔 即將到來行程 (自動過濾過期項目)</h2>
-    <div id="detail">載入中...</div>
+    <div id="todayStatus" class="today-status">⏳ 正在同步試算表資料...</div>
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 20px; font-size: 18px; opacity: 0.8;">🔔 待辦行程 (昨天的已隱藏)</h2>
+    <div id="detail"></div>
 </div>
 
 <script>
-// 自動將編輯連結轉為 CSV 匯出連結
+// 使用你提供的試算表 ID
 const SHEET_ID = "1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg";
-const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
-async function fetchData() {
-    try {
-        const response = await fetch(CSV_URL);
-        const data = await response.text();
-        processData(data);
-    } catch (error) {
-        document.getElementById("todayStatus").innerHTML = "❌ 無法讀取資料，請檢查共用權限";
+function getType(text = ""){
+    const t = text.toUpperCase();
+    if(t.includes("市長") || t.includes("VIP") || t.includes("貴賓")) return { label:"VIP", color:"#ef4444" };
+    if(t.includes("拍攝") || t.includes("攝影")) return { label:"拍攝", color:"#a855f7" };
+    if(t.includes("導覽")) return { label:"導覽", color:"#22c55e" };
+    return { label:"行程", color:"#3b82f6" };
+}
+
+async function loadSheet(){
+    try{
+        // 加上 timestamp 防止快取舊資料
+        const res = await fetch(`${SHEET_URL}&t=${new Date().getTime()}`);
+        const csv = await res.text();
+        parseCSV(csv);
+    }catch(err){
+        document.getElementById("todayStatus").innerHTML = "❌ 連線異常，請確認試算表已開啟共用權限";
     }
 }
 
-function processData(csvText) {
-    const rows = csvText.split('\n').slice(1); // 略過標題列
-    const detailContainer = document.getElementById("detail");
-    const statusBox = document.getElementById("todayStatus");
+function parseCSV(csv){
+    const rows = csv.split("\n").slice(1);
+    let events = [];
+    rows.forEach(r=>{
+        // 簡單處理 CSV 逗號問題
+        const cols = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+        if(cols.length >= 7) {
+            events.push({ 
+                date: cols[1]?.replace(/"/g, '').trim(), 
+                time: cols[2]?.replace(/"/g, '').trim(), 
+                name: cols[3]?.replace(/"/g, '').trim(), 
+                event: cols[4]?.replace(/"/g, '').trim(), 
+                people: cols[5]?.replace(/"/g, '').trim(), 
+                phone: cols[6]?.replace(/"/g, '').trim(), 
+                note: cols[7]?.replace(/"/g, '').trim() || ""
+            });
+        }
+    });
+    render(events);
+}
+
+function render(events){
+    const detail = document.getElementById("detail");
+    const status = document.getElementById("todayStatus");
     const now = new Date();
-    const todayStr = `${now.getMonth() + 1}/${now.getDate()}`;
     
-    let htmlContent = "";
-    let count = 0;
+    // 取得今天的午夜時間用於比較日期
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const currentHour = now.getHours();
 
-    rows.forEach(row => {
-        const cols = row.split(',');
-        if (cols.length < 5) return;
+    detail.innerHTML = "";
+    let activeCount = 0;
 
-        const dateVal = cols[1].trim();   // B欄: 日期
-        const timeVal = cols[2].trim();   // C欄: 時間
-        const eventName = cols[4].trim(); // E欄: 行程名稱
-        const note = cols[7] ? cols[7].trim() : "";
+    events.forEach(e => {
+        if(!e.date || !e.date.includes("/")) return;
 
-        // 判斷是否為過去的行程
-        const eventDate = new Date(`${now.getFullYear()}/${dateVal}`);
-        const eventHour = parseInt(timeVal.split(':')[0]) || 0;
+        // 解析日期 (假設格式為 M/D)
+        const parts = e.date.split("/");
+        const eventDate = new Date(now.getFullYear(), parseInt(parts[0])-1, parseInt(parts[1]));
         
-        // 清除日期時間對象，僅比對日期
-        const todayNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const targetDate = new Date(now.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+        // 解析小時 (假設格式為 HH:mm)
+        const eventHour = parseInt(e.time.split(":")[0]) || 0;
 
-        const isPast = targetDate < todayNoon;
-        const isToday = targetDate.getTime() === todayNoon.getTime();
-        const isExpiredToday = isToday && eventHour < now.getHours();
+        // 判斷邏輯
+        const isPastDay = eventDate < todayStart;
+        const isToday = eventDate.getTime() === todayStart.getTime();
+        const isExpiredToday = isToday && eventHour < currentHour;
 
-        // 核心邏輯：如果日期已過，或是今天的時間已過，就不顯示
-        if (!isPast && !isExpiredToday) {
-            count++;
-            const typeInfo = getTag(eventName + note);
-            htmlContent += `
-                <div class="detail-card" style="border-left-color: ${typeInfo.color}">
-                    <span class="badge" style="background:${typeInfo.color}">${typeInfo.label}</span>
-                    <div class="info-row"><b>📅 日期：</b>${dateVal} (${timeVal})</div>
-                    <div class="info-row"><b>📌 行程：</b>${eventName}</div>
-                    <div class="info-row"><b>👤 對象：</b>${cols[3]} (${cols[5]}人)</div>
-                    <div class="info-row"><b>📞 電話：</b>${cols[6]}</div>
-                    ${note ? `<div class="info-row"><b>📝 備註：</b>${note}</div>` : ''}
-                </div>`;
+        // 核心過濾：如果是昨天(含)以前，或今天是過去的小時，就不顯示
+        if (!isPastDay && !isExpiredToday) {
+            activeCount++;
+            const info = getType(`${e.event} ${e.note}`);
+            
+            detail.innerHTML += `
+                <div class="detail-card">
+                    <span class="badge" style="background:${info.color}">${info.label}</span>
+                    <h3>📅 ${e.date} <span style="margin-left:10px; color:#fff;">${e.time}</span></h3>
+                    <div class="info-row"><span class="info-label">👤</span> <b>${e.name}</b> (${e.people}人)</div>
+                    <div class="info-row"><span class="info-label">📌</span> ${e.event}</div>
+                    <div class="info-row"><span class="info-label">📞</span> ${e.phone}</div>
+                    ${e.note ? `<div class="note-box">📝 ${e.note}</div>` : ''}
+                </div>
+            `;
         }
     });
 
-    detailContainer.innerHTML = htmlContent || "<div style='text-align:center; padding:20px; opacity:0.5;'>目前沒有待辦行程</div>";
-    statusBox.innerHTML = count > 0 ? `✅ 還有 ${count} 筆行程待處理` : "✅ 今日已無行程";
-    statusBox.style.background = count > 0 ? "#1e3a8a" : "#065f46";
+    if(activeCount > 0){
+        status.innerHTML = `📢 還有 ${activeCount} 筆待辦行程`;
+        status.style.background = "linear-gradient(135deg, #1e40af, #3b82f6)";
+    } else {
+        status.innerHTML = "✅ 目前無即將到來的行程";
+        status.style.background = "linear-gradient(135deg, #15803d, #22c55e)";
+        detail.innerHTML = "<div style='opacity:0.5; grid-column: 1/-1; text-align:center; padding:40px;'>暫無資料</div>";
+    }
 }
 
-function getTag(text) {
-    if (text.includes("VIP") || text.includes("市長") || text.includes("貴賓")) return {label:"VIP", color:"#ef4444"};
-    if (text.includes("拍攝")) return {label:"拍攝", color:"#a855f7"};
-    return {label:"一般", color:"#3b82f6"};
-}
-
-// 初始載入
-fetchData();
-// 每 5 分鐘自動刷新一次
-setInterval(fetchData, 300000);
+// 啟動與自動刷新 (每 60 秒)
+loadSheet();
+setInterval(loadSheet, 60000);
 </script>
 </body>
 </html>
