@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>後慈湖行政看板</title>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;500;700;900&display=swap');
-        
+
         :root {
             --bg: #0d1117;
             --panel: #161b22;
@@ -16,88 +17,220 @@
             --border: #30363d;
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; font-family: "Noto Sans TC", sans-serif; }
-        
-        body { 
-            background: var(--bg); 
-            color: var(--text); 
-            padding: 15px; 
-            min-height: 100vh;
+        * {
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:"Noto Sans TC",sans-serif;
         }
 
-        /* 頂部區域 - 縮小高度 */
+        body {
+            background:var(--bg);
+            color:var(--text);
+            padding:15px;
+            min-height:100vh;
+        }
+
+        /* 頂部區域 */
         .header-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 15px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding-bottom:15px;
+            border-bottom:1px solid var(--border);
+            margin-bottom:15px;
         }
-        .main-title h1 { font-size: 20px; font-weight: 900; color: #fff; }
-        .main-title p { font-size: 10px; color: var(--accent); letter-spacing: 1px; }
-        #clock { font-size: 18px; font-weight: 700; color: #fff; }
 
-        /* 日曆區塊 - 縮小尺寸 */
+        .main-title h1 {
+            font-size:20px;
+            font-weight:900;
+            color:#fff;
+        }
+
+        .main-title p {
+            font-size:10px;
+            color:var(--accent);
+            letter-spacing:1px;
+        }
+
+        #clock {
+            font-size:18px;
+            font-weight:700;
+            color:#fff;
+        }
+
+        /* 日曆 */
         .calendar-box {
-            background: var(--panel);
-            border-radius: 12px;
-            padding: 12px;
-            border: 1px solid var(--border);
-            max-width: 450px; /* 限制寬度讓它不要太佔空間 */
-            margin: 0 auto 25px;
-        }
-        .month-name { font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 10px; text-align: center; }
-        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .week-h { text-align: center; font-size: 11px; color: #8b949e; padding-bottom: 5px; }
-        .day { 
-            aspect-ratio: 1.2/1; border-radius: 8px; /* 稍微扁平一點 */
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-size: 14px; cursor: pointer; position: relative;
-        }
-        .day.today { background: var(--accent); color: #fff; font-weight: 900; }
-        .day.selected { border: 1px solid #fff; }
-
-        /* 指示點縮小 */
-        .dot { width: 3px; height: 3px; border-radius: 50%; background: #444; margin-top: 2px; }
-        .dot.vip { background: var(--vip); box-shadow: 0 0 4px var(--vip); }
-        .dot.event { background: #fff; }
-
-        /* 行程明細區 - 放大重點 */
-        .list-title { 
-            margin: 20px 0 15px; font-size: 22px; font-weight: 900; color: #fff;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .list-title::before { content: ''; width: 6px; height: 24px; background: var(--accent); border-radius: 3px; }
-
-        /* 行程卡片 - 放大顯示 */
-        .card { 
-            background: var(--panel); 
-            border: 1px solid var(--border);
-            border-radius: 16px; padding: 24px; margin-bottom: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-        .card.is-vip { border-left: 8px solid var(--vip); } /* 增加 VIP 邊條寬度 */
-        
-        .time-tag { color: var(--accent); font-weight: 900; font-size: 20px; margin-bottom: 10px; display: block; }
-        .vip-label { background: var(--vip); color: #fff; font-size: 12px; padding: 3px 10px; border-radius: 4px; float: right; }
-
-        .group-name { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 12px; line-height: 1.2; }
-        .group-name span { font-size: 18px; color: var(--accent); font-weight: 500; margin-left: 8px; }
-
-        .meta-info { display: flex; flex-direction: column; gap: 8px; font-size: 17px; }
-        .meta-item { color: #8b949e; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
-        .meta-item b { color: #fff; margin-left: 5px; }
-
-        .note { 
-            margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.03); 
-            border-radius: 10px; font-size: 16px; color: #abb2bf; line-height: 1.6;
-            border: 1px dashed var(--border);
+            background:var(--panel);
+            border-radius:12px;
+            padding:12px;
+            border:1px solid var(--border);
+            max-width:450px;
+            margin:0 auto 25px;
         }
 
-        #empty-hint { text-align: center; padding: 60px; color: #484f58; font-size: 18px; }
+        .month-name {
+            font-size:16px;
+            font-weight:900;
+            color:#fff;
+            margin-bottom:10px;
+            text-align:center;
+        }
+
+        .grid {
+            display:grid;
+            grid-template-columns:repeat(7,1fr);
+            gap:5px;
+        }
+
+        .week-h {
+            text-align:center;
+            font-size:11px;
+            color:#8b949e;
+            padding-bottom:5px;
+        }
+
+        .day {
+            aspect-ratio:1.2/1;
+            border-radius:8px;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            font-size:14px;
+            cursor:pointer;
+            position:relative;
+        }
+
+        .day.today {
+            background:var(--accent);
+            color:#fff;
+            font-weight:900;
+        }
+
+        .day.selected {
+            border:1px solid #fff;
+        }
+
+        .dot {
+            width:3px;
+            height:3px;
+            border-radius:50%;
+            background:#444;
+            margin-top:2px;
+        }
+
+        .dot.vip {
+            background:var(--vip);
+            box-shadow:0 0 4px var(--vip);
+        }
+
+        .dot.event {
+            background:#fff;
+        }
+
+        /* 行程列表 */
+        .list-title {
+            margin:20px 0 15px;
+            font-size:22px;
+            font-weight:900;
+            color:#fff;
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+
+        .list-title::before {
+            content:'';
+            width:6px;
+            height:24px;
+            background:var(--accent);
+            border-radius:3px;
+        }
+
+        .card {
+            background:var(--panel);
+            border:1px solid var(--border);
+            border-radius:16px;
+            padding:24px;
+            margin-bottom:16px;
+            box-shadow:0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .card.is-vip {
+            border-left:8px solid var(--vip);
+        }
+
+        .time-tag {
+            color:var(--accent);
+            font-weight:900;
+            font-size:20px;
+            margin-bottom:10px;
+            display:block;
+        }
+
+        .vip-label {
+            background:var(--vip);
+            color:#fff;
+            font-size:12px;
+            padding:3px 10px;
+            border-radius:4px;
+            float:right;
+        }
+
+        .group-name {
+            font-size:26px;
+            font-weight:900;
+            color:#fff;
+            margin-bottom:12px;
+            line-height:1.2;
+        }
+
+        .group-name span {
+            font-size:18px;
+            color:var(--accent);
+            font-weight:500;
+            margin-left:8px;
+        }
+
+        .meta-info {
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+            font-size:17px;
+        }
+
+        .meta-item {
+            color:#8b949e;
+            border-bottom:1px solid rgba(255,255,255,0.05);
+            padding-bottom:8px;
+        }
+
+        .meta-item b {
+            color:#fff;
+            margin-left:5px;
+        }
+
+        .note {
+            margin-top:15px;
+            padding:15px;
+            background:rgba(255,255,255,0.03);
+            border-radius:10px;
+            font-size:16px;
+            color:#abb2bf;
+            line-height:1.6;
+            border:1px dashed var(--border);
+        }
+
+        #empty-hint {
+            text-align:center;
+            padding:60px;
+            color:#484f58;
+            font-size:18px;
+        }
     </style>
 </head>
+
 <body>
 
 <div class="header-bar">
@@ -105,116 +238,308 @@
         <h1>後慈湖行政排程</h1>
         <p>CIHU ADMIN SYSTEM</p>
     </div>
+
     <div id="clock">00:00:00</div>
 </div>
 
 <div class="calendar-box">
-    <div id="monthLabel" class="month-name">2026年 5月</div>
+
+    <div id="monthLabel" class="month-name">
+        2026年 5月
+    </div>
+
     <div class="grid" id="calendar">
-        <div class="week-h">日</div><div class="week-h">一</div><div class="week-h">二</div>
-        <div class="week-h">三</div><div class="week-h">四</div><div class="week-h">五</div><div class="week-h">六</div>
+
+        <div class="week-h">日</div>
+        <div class="week-h">一</div>
+        <div class="week-h">二</div>
+        <div class="week-h">三</div>
+        <div class="week-h">四</div>
+        <div class="week-h">五</div>
+        <div class="week-h">六</div>
+
     </div>
 </div>
 
-<div class="list-title" id="listDateLabel">載入中...</div>
+<div class="list-title" id="listDateLabel">
+    載入中...
+</div>
+
 <div id="eventList"></div>
 
 <script>
-const SHEET_ID = "1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg";
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+
+const SHEET_ID =
+"1HAWiDkq7R8B7Q1aPofH8AAg-WFJ-RMGFRt1pZHeFxOg";
+
+const SHEET_URL =
+`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 
 let allData = [];
+
 const today = new Date();
 
 function updateTime() {
-    document.getElementById('clock').innerText = new Date().toLocaleTimeString('zh-TW', {hour12:false});
+
+    document.getElementById('clock').innerText =
+        new Date().toLocaleTimeString('zh-TW',{
+            hour12:false
+        });
 }
-setInterval(updateTime, 1000);
+
+setInterval(updateTime,1000);
 
 async function load() {
+
     try {
-        const res = await fetch(`${SHEET_URL}&cache=${Date.now()}`);
+
+        const res =
+            await fetch(`${SHEET_URL}&cache=${Date.now()}`);
+
         const text = await res.text();
+
         allData = parse(text);
-        renderCal(today.getMonth(), today.getFullYear());
-        selectDate(today.getMonth() + 1, today.getDate());
-    } catch (e) { console.error("資料載入失敗"); }
+
+        renderCal(today.getMonth(),today.getFullYear());
+
+        selectDate(today.getMonth()+1,today.getDate());
+
+    } catch(e) {
+
+        console.error("資料載入失敗");
+    }
 }
 
 function parse(csv) {
+
     const rows = csv.split(/\r?\n/).slice(1);
+
+    const twoMonthsLater = new Date();
+
+    twoMonthsLater.setMonth(
+        twoMonthsLater.getMonth() + 2
+    );
+
     return rows.map(r => {
-        const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
+
+        const c = r
+            .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+            .map(v =>
+                v.replace(/^"|"$/g,'').trim()
+            );
+
         if(!c[1]) return null;
+
         const dPart = c[1].split("/");
-        return { 
-            m: parseInt(dPart[dPart.length-2]), d: parseInt(dPart[dPart.length-1]), 
-            time: c[2], name: c[3], act: c[4], p: c[5], tel: c[6], note: c[7] 
+
+        const eventMonth =
+            parseInt(dPart[dPart.length - 2]);
+
+        const eventDay =
+            parseInt(dPart[dPart.length - 1]);
+
+        const eventDate = new Date(
+            today.getFullYear(),
+            eventMonth - 1,
+            eventDay
+        );
+
+        // 只顯示今天 ~ 未來兩個月
+
+        const todayOnly = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+        );
+
+        if(eventDate < todayOnly) return null;
+
+        if(eventDate > twoMonthsLater) return null;
+
+        return {
+
+            m:eventMonth,
+            d:eventDay,
+
+            time:c[2],
+            name:c[3],
+            act:c[4],
+            p:c[5],
+            tel:c[6],
+            note:c[7]
         };
+
     }).filter(x => x);
 }
 
-function renderCal(m, y) {
-    const container = document.getElementById("calendar");
-    const mLabel = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
-    document.getElementById("monthLabel").innerText = `${y}年 ${mLabel[m]}`;
-    
-    const start = new Date(y, m, 1).getDay();
-    const days = new Date(y, m + 1, 0).getDate();
-    document.querySelectorAll('.day').forEach(e => e.remove());
+function renderCal(m,y) {
 
-    for(let i=0; i<start; i++) container.appendChild(Object.assign(document.createElement("div"), {className:"day"}));
+    const container =
+        document.getElementById("calendar");
+
+    const mLabel = [
+        "一月","二月","三月","四月",
+        "五月","六月","七月","八月",
+        "九月","十月","十一月","十二月"
+    ];
+
+    document.getElementById("monthLabel").innerText =
+        `${y}年 ${mLabel[m]}`;
+
+    const start = new Date(y,m,1).getDay();
+
+    const days = new Date(y,m+1,0).getDate();
+
+    document.querySelectorAll('.day')
+        .forEach(e => e.remove());
+
+    for(let i=0;i<start;i++) {
+
+        container.appendChild(
+            Object.assign(
+                document.createElement("div"),
+                { className:"day" }
+            )
+        );
+    }
 
     for(let d=1; d<=days; d++) {
+
         const el = document.createElement("div");
+
         el.className = "day";
-        if(d === today.getDate() && m === today.getMonth()) el.classList.add("today");
+
+        if(
+            d === today.getDate() &&
+            m === today.getMonth()
+        ) {
+            el.classList.add("today");
+        }
+
         el.innerHTML = `<span>${d}</span>`;
-        
-        const dayEvents = allData.filter(x => x.m === (m+1) && x.d === d);
+
+        const dayEvents = allData.filter(x =>
+            x.m === (m+1) && x.d === d
+        );
+
         if(dayEvents.length > 0) {
-            const isVip = dayEvents.some(x => (x.act+x.name+x.note).match(/貴賓/));
-            const dot = document.createElement("div");
-            dot.className = isVip ? "dot vip" : "dot event";
+
+            const isVip = dayEvents.some(x =>
+                (x.act+x.name+x.note).match(/貴賓/)
+            );
+
+            const dot =
+                document.createElement("div");
+
+            dot.className =
+                isVip ? "dot vip" : "dot event";
+
             el.appendChild(dot);
         }
-        
+
         el.onclick = () => {
-            document.querySelectorAll('.day').forEach(x => x.classList.remove('selected'));
+
+            document.querySelectorAll('.day')
+                .forEach(x =>
+                    x.classList.remove('selected')
+                );
+
             el.classList.add('selected');
-            selectDate(m + 1, d);
+
+            selectDate(m+1,d);
         };
+
         container.appendChild(el);
     }
 }
 
-function selectDate(m, d) {
-    const list = document.getElementById("eventList");
-    const week = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
-    const dayName = week[new Date(2026, m-1, d).getDay()];
-    document.getElementById("listDateLabel").innerText = `${m}月${d}日 (${dayName})`;
-    
-    const filtered = allData.filter(x => x.m === m && x.d === d).sort((a,b) => a.time.localeCompare(b.time));
-    list.innerHTML = filtered.length ? "" : '<div id="empty-hint">本日尚無行程安排</div>';
+function selectDate(m,d) {
+
+    const list =
+        document.getElementById("eventList");
+
+    const week = [
+        "週日","週一","週二",
+        "週三","週四","週五","週六"
+    ];
+
+    const dayName =
+        week[new Date(2026,m-1,d).getDay()];
+
+    document.getElementById("listDateLabel").innerText =
+        `${m}月${d}日 (${dayName})`;
+
+    const filtered = allData
+        .filter(x => x.m === m && x.d === d)
+        .sort((a,b) =>
+            a.time.localeCompare(b.time)
+        );
+
+    list.innerHTML = filtered.length
+        ? ""
+        : '<div id="empty-hint">本日尚無行程安排</div>';
 
     filtered.forEach(x => {
-        const isVip = (x.act+x.name+x.note).match(/貴賓/);
+
+        const isVip =
+            (x.act+x.name+x.note).match(/貴賓/);
+
         list.innerHTML += `
             <div class="card ${isVip ? 'is-vip' : ''}">
-                <span class="time-tag">預約時間：${x.time} ${isVip ? '<span class="vip-label">重要行程</span>' : ''}</span>
-                <div class="group-name">${x.name} <span>(${x.p}人)</span></div>
-                <div class="meta-info">
-                    <div class="meta-item">活動項目：<b>${x.act}</b></div>
-                    <div class="meta-item">聯繫電話：<b>${x.tel}</b></div>
+
+                <span class="time-tag">
+
+                    預約時間：${x.time}
+
+                    ${
+                        isVip
+                        ? '<span class="vip-label">重要行程</span>'
+                        : ''
+                    }
+
+                </span>
+
+                <div class="group-name">
+
+                    ${x.name}
+
+                    <span>(${x.p}人)</span>
+
                 </div>
-                ${x.note ? `<div class="note"><b>備註：</b><br>${x.note}</div>` : ""}
+
+                <div class="meta-info">
+
+                    <div class="meta-item">
+                        活動項目：<b>${x.act}</b>
+                    </div>
+
+                    <div class="meta-item">
+                        聯繫電話：<b>${x.tel}</b>
+                    </div>
+
+                </div>
+
+                ${
+                    x.note
+                    ? `
+                    <div class="note">
+                        <b>備註：</b><br>
+                        ${x.note}
+                    </div>
+                    `
+                    : ""
+                }
+
             </div>
         `;
     });
 }
 
 load();
-setInterval(load, 60000);
+
+setInterval(load,60000);
+
 </script>
+
 </body>
 </html>
