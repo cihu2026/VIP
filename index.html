@@ -309,63 +309,45 @@ async function load() {
 }
 
 function parse(csv) {
-    const rows = csv.split(/\r?\n/).slice(1);
+    const lines = csv.split(/\r?\n/);
+    const headers = lines[0]
+        .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+        .map(v => v.replace(/^"|"$/g,'').trim());
+
+    const rows = lines.slice(1);
+
     return rows.map(r => {
-        const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g,'').trim());
-        if(!c[1]) return null;
-        const dPart = c[1].split("/");
-        const eventMonth = parseInt(dPart[dPart.length - 2]);
-        const eventDay = parseInt(dPart[dPart.length - 1]);
+        const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+            .map(v => v.replace(/^"|"$/g,'').trim());
+
+        const get = (...names) => {
+            for (const name of names) {
+                const index = headers.indexOf(name);
+                if (index !== -1) return c[index] || "";
+            }
+            return "";
+        };
+
+        const dateText = get("日期", "預約日期", "參訪日期");
+        if (!dateText) return null;
+
+        const dPart = dateText.split(/[\/\-]/);
+        const eventYear = parseInt(dPart[0]);
+        const eventMonth = parseInt(dPart[1]);
+        const eventDay = parseInt(dPart[2]);
+
         return {
-            m:eventMonth,
-            d:eventDay,
-            time:c[2],
-            name:c[3],
-            act:c[4],
-            p:c[5],
-            tel:c[6],
-            note:c[7]
+            y: eventYear,
+            m: eventMonth,
+            d: eventDay,
+            time: get("時間", "預約時間", "參訪時間"),
+            name: get("團體名稱", "申請單位", "單位名稱", "姓名"),
+            act: get("活動項目", "參訪項目", "項目"),
+            p: get("人數", "參訪人數"),
+            tel: get("電話", "聯絡電話", "手機"),
+            note: get("備註", "說明", "其他")
         };
     }).filter(x => x);
-}
-
-function renderCal(m, y, index) {
-    const container = document.getElementById(`calendar-${index}`);
-    const mLabel = ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
-    document.getElementById(`monthLabel-${index}`).innerText = `${y}年 ${mLabel[m]}`;
-
-    const start = new Date(y, m, 1).getDay();
-    const days = new Date(y, m + 1, 0).getDate();
-
-    container.querySelectorAll('.day').forEach(e => e.remove());
-
-    for(let i=0; i<start; i++) {
-        container.appendChild(Object.assign(document.createElement("div"), { className:"day" }));
-    }
-
-    for(let d=1; d<=days; d++) {
-        const el = document.createElement("div");
-        el.className = "day";
-        if(d === today.getDate() && m === today.getMonth() && y === today.getFullYear()) {
-            el.classList.add("today");
-        }
-        el.innerHTML = `<span>${d}</span>`;
-
-        const dayEvents = allData.filter(x => x.m === (m+1) && x.d === d);
-        if(dayEvents.length > 0) {
-            const isVip = dayEvents.some(x => (x.act+x.name+x.note).match(/貴賓/));
-            const dot = document.createElement("div");
-            dot.className = isVip ? "dot vip" : "dot event";
-            el.appendChild(dot);
-        }
-
-        el.onclick = () => {
-            document.querySelectorAll('.day').forEach(x => x.classList.remove('selected'));
-            el.classList.add('selected');
-            selectDate(y, m+1, d);
-        };
-        container.appendChild(el);
-    }
 }
 
 function selectDate(y, m, d) {
