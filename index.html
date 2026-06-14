@@ -6,7 +6,11 @@
 <title>慈湖公務團行政看板</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-:root{--bg:#07101d;--bg2:#10233b;--text:#eef6ff;--muted:#a9b7ca;--border:rgba(255,255,255,.14);--accent:#6ee7f9;--mayor:#f8d56b;--director:#ef4444;--chief:#a855f7;--councilor:#f97316;--secretary:#38bdf8;--section:#22c55e;--vip:#fb7185;--normal:#cbd5e1;--special:#34d399}*{box-sizing:border-box;margin:0;padding:0;font-family:"Noto Sans TC",sans-serif}body{min-height:100vh;color:var(--text);padding:18px;background:radial-gradient(circle at top left,rgba(110,231,249,.22),transparent 34%),radial-gradient(circle at top right,rgba(168,85,247,.23),transparent 32%),linear-gradient(145deg,var(--bg),var(--bg2) 56%,#070b13);background-attachment:fixed}.app{max-width:1040px;margin:0 auto}.header-bar{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:20px;border:1px solid var(--border);border-radius:28px;background:rgba(255,255,255,.09);box-shadow:0 20px 55px rgba(0,0,0,.38);backdrop-filter:blur(18px);margin-bottom:14px}.badge{display:inline-flex;padding:5px 10px;border:1px solid rgba(110,231,249,.35);border-radius:999px;color:var(--accent);font-size:11px;font-weight:900;letter-spacing:.8px;background:rgba(110,231,249,.08);margin-bottom:8px}.main-title h1{font-size:28px;font-weight:900;line-height:1.15}.main-title p{margin-top:6px;font-size:11px;color:var(--muted);letter-spacing:1.6px;font-weight:800}.header-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}#clock{font-size:20px;font-weight:900;padding:10px 12px;border-radius:16px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.12)}#lastUpdate{color:var(--muted);font-size:12px;font-weight:800}.toolbar,.legend{display:flex;gap:8px;flex-wrap:wrap}.toolbar{margin:0 0 14px}.legend{margin:0 0 18px}.btn,.pill{border:1px solid var(--border);background:rgba(255,255,255,.08);border-radius:999px;font-weight:900}.btn{color:#fff;padding:9px 13px;font-size:13px;cursor:pointer}.pill{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;padding:8px 10px}.pill i,.dot{display:block;border-radius:50%}.pill i{width:8px;height:8px;background:var(--normal)}.pill.mayor i,.dot.mayor{background:var(--mayor)}.pill.director i,.dot.director{background:var(--director)}.pill.chief i,.dot.chief{background:var(--chief)}.pill.councilor i,.dot.councilor{background:var(--councilor)}.pill.secretary i,.dot.secretary{background:var(--secretary)}.pill.section i,.dot.section{background:var(--section)}.pill.vip i,.dot.vip{background:var(--vip)}.pill.special i{background:var(--special)}.summary-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px}.summary-card,.calendar-box,.card,#empty-hint,#notice{background:rgba(255,255,255,.078);border:1px solid var(--border);box-shadow:0 15px 38px rgba(0,0,0,.24);backdrop-filter:blur(14px)}.summary-card{border-radius:20px;padding:14px}.summary-card .label{color:var(--muted);font-size:12px;font-weight:900;margin-bottom:5px}.summary-card .value{font-size:22px;font-weight:900}#notice{display:none;color:#fee2e2;border-color:rgba(248,113,113,.4);background:rgba(127,29,29,.28);padding:13px 15px;border-radius:18px;margin-bottom:15px;font-size:14px;font-weight:700;line-height:1.6}.calendars-container{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:24px}.calendar-box{border-radius:24px;padding:16px}.month-name{font-size:20px;font-weight:900;margin-bottom:14px;text-align:center}.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.week-h{text-align:center;font-size:12px;color:#b5c2d2;padding-bottom:6px;font-weight:900}.day{aspect-ratio:1/1;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:16px;font-weight:900;cursor:pointer;color:#d7e1ed;border:1px solid transparent;background:rgba(255,255,255,.025);position:relative}.day.today{background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff}.day.selected{border:2px solid var(--mayor);box-shadow:0 0 0 4px rgba(248,213,107,.13)}.day.closed{color:rgba(255,255,255,.38);background:rgba(255,255,255,.018)}.day.closed:after{content:"休";position:absolute;top:4px;right:5px;font-size:10px;color:rgba(255,255,255,.45)}.day.tuesday-special{background:rgba(52,211,153,.12);color:#d1fae5;border-color:rgba(52,211,153,.35)}.day.tuesday-special:after{content:"特開";position:absolute;top:4px;right:5px;font-size:10px;color:#86efac}.dot{width:6px;height:6px;background:#fff;margin-top:4px}.list-title{margin:18px 0 14px;font-size:28px;font-weight:900;display:flex;align-items:center;gap:12px}.list-title:before{content:"";width:8px;height:32px;background:linear-gradient(180deg,var(--accent),#3b82f6);border-radius:999px}.special-note{margin:-4px 0 14px;padding:12px 14px;border-radius:18px;border:1px solid rgba(52,211,153,.35);background:rgba(6,78,59,.32);color:#d1fae5;font-weight:900}.card{position:relative;overflow:hidden;border-radius:24px;padding:20px;margin-bottom:16px}.card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:var(--normal)}.card.mayor:before{background:var(--mayor)}.card.director:before{background:var(--director)}.card.chief:before{background:var(--chief)}.card.councilor:before{background:var(--councilor)}.card.secretary:before{background:var(--secretary)}.card.section:before{background:var(--section)}.card.vip:before{background:var(--vip)}.time-tag{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--accent);font-weight:900;font-size:18px;margin-bottom:12px}.level-label{color:#06111f;font-size:12px;padding:5px 10px;border-radius:999px;white-space:nowrap;font-weight:900;background:var(--normal)}.level-label.director,.level-label.chief,.level-label.councilor,.level-label.vip{color:#fff}.level-label.mayor{background:var(--mayor)}.level-label.director{background:var(--director)}.level-label.chief{background:var(--chief)}.level-label.councilor{background:var(--councilor)}.level-label.secretary{background:var(--secretary)}.level-label.section{background:var(--section)}.level-label.vip{background:var(--vip)}.level-label.normal{background:rgba(203,213,225,.88);color:#0f172a}.group-name{font-size:23px;font-weight:900;margin-bottom:14px;line-height:1.35;word-break:break-word;white-space:pre-wrap}.group-name span{display:inline-block;font-size:15px;color:var(--mayor);font-weight:900;margin-left:8px}.meta-item{color:var(--muted);border-top:1px solid rgba(255,255,255,.08);padding-top:10px;font-size:16px;line-height:1.55;white-space:pre-wrap}.meta-item b{color:#fff;margin-left:5px}.note{margin-top:15px;padding:14px 15px;background:rgba(8,17,31,.42);border-radius:16px;font-size:15px;color:#d6deea;line-height:1.7;border:1px dashed rgba(255,255,255,.18);white-space:pre-wrap}#empty-hint{text-align:center;padding:42px;color:#8ca0b8;font-size:17px;font-weight:900;border-radius:22px}@media(max-width:760px){body{padding:13px}.header-bar{grid-template-columns:1fr;border-radius:24px;padding:18px}.header-actions{align-items:flex-start}.main-title h1{font-size:24px}#clock{font-size:17px}.summary-row{grid-template-columns:1fr;gap:9px}.calendars-container{grid-template-columns:1fr}.day{border-radius:14px;font-size:15px}.list-title{font-size:25px}.card{border-radius:22px;padding:18px}.group-name{font-size:21px}.time-tag{align-items:flex-start;flex-direction:column}}
+:root{--bg:#07101d;--bg2:#10233b;--text:#eef6ff;--muted:#a9b7ca;--border:rgba(255,255,255,.14);--accent:#6ee7f9;--mayor:#f8d56b;--director:#ef4444;--chief:#a855f7;--councilor:#f97316;--secretary:#38bdf8;--section:#22c55e;--vip:#fb7185;--normal:#cbd5e1;--special:#34d399}
+*{box-sizing:border-box;margin:0;padding:0;font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{min-height:100vh;color:var(--text);padding:18px;background:radial-gradient(circle at top left,rgba(110,231,249,.22),transparent 34%),radial-gradient(circle at top right,rgba(168,85,247,.23),transparent 32%),linear-gradient(145deg,var(--bg),var(--bg2) 56%,#070b13);background-attachment:fixed}
+.app{max-width:1040px;margin:0 auto}.header-bar{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:20px;border:1px solid var(--border);border-radius:28px;background:rgba(255,255,255,.09);box-shadow:0 20px 55px rgba(0,0,0,.38);backdrop-filter:blur(18px);margin-bottom:14px}
+.badge{display:inline-flex;padding:5px 10px;border:1px solid rgba(110,231,249,.35);border-radius:999px;color:var(--accent);font-size:11px;font-weight:900;letter-spacing:.8px;background:rgba(110,231,249,.08);margin-bottom:8px}.main-title h1{font-size:28px;font-weight:900;line-height:1.15}.main-title p{margin-top:6px;font-size:11px;color:var(--muted);letter-spacing:1.6px;font-weight:800}.header-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}#clock{font-size:20px;font-weight:900;padding:10px 12px;border-radius:16px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.12)}#lastUpdate{color:var(--muted);font-size:12px;font-weight:800;text-align:right;line-height:1.5}.toolbar,.legend{display:flex;gap:8px;flex-wrap:wrap}.toolbar{margin:0 0 14px}.legend{margin:0 0 18px}.btn,.pill{border:1px solid var(--border);background:rgba(255,255,255,.08);border-radius:999px;font-weight:900}.btn{color:#fff;padding:9px 13px;font-size:13px;cursor:pointer}.btn:active{transform:translateY(1px)}.pill{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;padding:8px 10px}.pill i,.dot{display:block;border-radius:50%}.pill i{width:8px;height:8px;background:var(--normal)}.pill.mayor i,.dot.mayor{background:var(--mayor)}.pill.director i,.dot.director{background:var(--director)}.pill.chief i,.dot.chief{background:var(--chief)}.pill.councilor i,.dot.councilor{background:var(--councilor)}.pill.secretary i,.dot.secretary{background:var(--secretary)}.pill.section i,.dot.section{background:var(--section)}.pill.vip i,.dot.vip{background:var(--vip)}.pill.special i{background:var(--special)}.summary-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px}.summary-card,.calendar-box,.card,#empty-hint,#notice{background:rgba(255,255,255,.078);border:1px solid var(--border);box-shadow:0 15px 38px rgba(0,0,0,.24);backdrop-filter:blur(14px)}.summary-card{border-radius:20px;padding:14px}.summary-card .label{color:var(--muted);font-size:12px;font-weight:900;margin-bottom:5px}.summary-card .value{font-size:22px;font-weight:900}#notice{display:none;color:#fee2e2;border-color:rgba(248,113,113,.4);background:rgba(127,29,29,.28);padding:13px 15px;border-radius:18px;margin-bottom:15px;font-size:14px;font-weight:700;line-height:1.6}.calendars-container{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:24px}.calendar-box{border-radius:24px;padding:16px}.month-name{font-size:20px;font-weight:900;margin-bottom:14px;text-align:center}.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.week-h{text-align:center;font-size:12px;color:#b5c2d2;padding-bottom:6px;font-weight:900}.day{aspect-ratio:1/1;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:16px;font-weight:900;cursor:pointer;color:#d7e1ed;border:1px solid transparent;background:rgba(255,255,255,.025);position:relative}.day.today{background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff}.day.selected{border:2px solid var(--mayor);box-shadow:0 0 0 4px rgba(248,213,107,.13)}.day.closed{color:rgba(255,255,255,.38);background:rgba(255,255,255,.018)}.day.closed:after{content:"休";position:absolute;top:4px;right:5px;font-size:10px;color:rgba(255,255,255,.45)}.day.tuesday-special{background:rgba(52,211,153,.12);color:#d1fae5;border-color:rgba(52,211,153,.35)}.day.tuesday-special:after{content:"特開";position:absolute;top:4px;right:5px;font-size:10px;color:#86efac}.dot{width:6px;height:6px;background:#fff;margin-top:4px}.list-title{margin:18px 0 14px;font-size:28px;font-weight:900;display:flex;align-items:center;gap:12px}.list-title:before{content:"";width:8px;height:32px;background:linear-gradient(180deg,var(--accent),#3b82f6);border-radius:999px}.special-note{margin:-4px 0 14px;padding:12px 14px;border-radius:18px;border:1px solid rgba(52,211,153,.35);background:rgba(6,78,59,.32);color:#d1fae5;font-weight:900}.card{position:relative;overflow:hidden;border-radius:24px;padding:20px;margin-bottom:16px}.card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:var(--normal)}.card.mayor:before{background:var(--mayor)}.card.director:before{background:var(--director)}.card.chief:before{background:var(--chief)}.card.councilor:before{background:var(--councilor)}.card.secretary:before{background:var(--secretary)}.card.section:before{background:var(--section)}.card.vip:before{background:var(--vip)}.time-tag{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--accent);font-weight:900;font-size:18px;margin-bottom:12px}.level-label{color:#06111f;font-size:12px;padding:5px 10px;border-radius:999px;white-space:nowrap;font-weight:900;background:var(--normal)}.level-label.director,.level-label.chief,.level-label.councilor,.level-label.vip{color:#fff}.level-label.mayor{background:var(--mayor)}.level-label.director{background:var(--director)}.level-label.chief{background:var(--chief)}.level-label.councilor{background:var(--councilor)}.level-label.secretary{background:var(--secretary)}.level-label.section{background:var(--section)}.level-label.vip{background:var(--vip)}.level-label.normal{background:rgba(203,213,225,.88);color:#0f172a}.group-name{font-size:23px;font-weight:900;margin-bottom:14px;line-height:1.35;word-break:break-word;white-space:pre-wrap}.group-name span{display:inline-block;font-size:15px;color:var(--mayor);font-weight:900;margin-left:8px}.meta-item{color:var(--muted);border-top:1px solid rgba(255,255,255,.08);padding-top:10px;font-size:16px;line-height:1.55;white-space:pre-wrap}.meta-item b{color:#fff;margin-left:5px}.note{margin-top:15px;padding:14px 15px;background:rgba(8,17,31,.42);border-radius:16px;font-size:15px;color:#d6deea;line-height:1.7;border:1px dashed rgba(255,255,255,.18);white-space:pre-wrap}#empty-hint{text-align:center;padding:42px;color:#8ca0b8;font-size:17px;font-weight:900;border-radius:22px}@media(max-width:760px){body{padding:13px}.header-bar{grid-template-columns:1fr;border-radius:24px;padding:18px}.header-actions{align-items:flex-start}.main-title h1{font-size:24px}#clock{font-size:17px}#lastUpdate{text-align:left}.summary-row{grid-template-columns:1fr;gap:9px}.calendars-container{grid-template-columns:1fr}.day{border-radius:14px;font-size:15px}.list-title{font-size:25px}.card{border-radius:22px;padding:18px}.group-name{font-size:21px}.time-tag{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
 <body>
@@ -27,23 +31,106 @@ var allData=[];
 var selectedDate=new Date();
 var today=new Date();
 var loadingScript=null;
+var rawRowsCount=0;
+var skippedRowsCount=0;
+
 function byId(id){return document.getElementById(id);}
 function setText(id,text){var e=byId(id);if(e){e.innerText=text;}}
 function pad(n){n=Number(n);return n<10?"0"+n:""+n;}
 function clockText(){var d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());}
 function updateTime(){setText("clock",clockText());}
 updateTime();setInterval(updateTime,1000);
+
 function esc(t){return String(t||"").replace(/[&<>']/g,function(s){return {"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;"}[s];});}
+function cleanText(t){return String(t||"").replace(/\u3000/g," ").replace(/\s+/g," ").trim();}
 function h(t){return String(t||"").replace(/[：:]/g,"").replace(/\s+/g,"").trim();}
-function valueOfCell(c){if(!c){return"";}if(c.f!==undefined&&c.f!==null){return String(c.f);}if(c.v!==undefined&&c.v!==null){return String(c.v);}return"";}
-function parseDate(v){var s=String(v||"").trim(),m;if(s.indexOf("Date(")===0){m=s.match(/Date\((\d+),(\d+),(\d+)/);if(m){return{y:Number(m[1]),m:Number(m[2])+1,d:Number(m[3])};}}m=s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);if(m){return{y:Number(m[1]),m:Number(m[2]),d:Number(m[3])};}m=s.match(/^(\d{1,2})[\/\-](\d{1,2})$/);if(m){return{y:today.getFullYear(),m:Number(m[1]),d:Number(m[2])};}m=s.match(/^(\d{1,2})[:：](\d{1,2})([:：]\d{1,2})?$/);if(m){return{y:today.getFullYear(),m:Number(m[1]),d:Number(m[2])};}return null;}
-function normTime(v){var s=String(v||"").trim().replace(/：/g,":"),m=s.match(/^(\d{1,2}):(\d{2}):\d{2}$/);return m?pad(m[1])+":"+m[2]:s;}
+function valueOfCell(c){
+  if(!c){return"";}
+  if(c.f!==undefined&&c.f!==null){return String(c.f);}
+  if(c.v instanceof Date){return c.v.getFullYear()+"/"+(c.v.getMonth()+1)+"/"+c.v.getDate();}
+  if(c.v!==undefined&&c.v!==null){return String(c.v);}
+  return"";
+}
+function cell(row,idx){return valueOfCell(row&&row[idx]);}
+function validDate(y,m,d){
+  y=Number(y);m=Number(m);d=Number(d);
+  if(!y||m<1||m>12||d<1||d>31){return null;}
+  var dt=new Date(y,m-1,d);
+  if(dt.getFullYear()!==y||dt.getMonth()!==m-1||dt.getDate()!==d){return null;}
+  return {y:y,m:m,d:d};
+}
+function parseDate(v){
+  var s=cleanText(v),m,dt;
+  if(!s){return null;}
+  if(s.indexOf("Date(")===0){m=s.match(/Date\((\d+),(\d+),(\d+)/);if(m){return validDate(m[1],Number(m[2])+1,m[3]);}}
+  m=s.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/);if(m){return validDate(m[1],m[2],m[3]);}
+  m=s.match(/^(\d{1,2})[\/\-\.](\d{1,2})$/);if(m){return validDate(today.getFullYear(),m[1],m[2]);}
+  m=s.match(/^(\d{1,2})[:：](\d{1,2})([:：]\d{1,2})?$/);if(m){return validDate(today.getFullYear(),m[1],m[2]);}
+  dt=new Date(s);if(!isNaN(dt.getTime())){return validDate(dt.getFullYear(),dt.getMonth()+1,dt.getDate());}
+  return null;
+}
+function normTime(v){
+  var s=cleanText(v).replace(/：/g,":"),m;
+  if(!s){return"";}
+  m=s.match(/(\d{1,2}):(\d{2})(?::\d{2})?/);
+  if(m){return (/改/.test(s)?"改":"")+pad(m[1])+":"+m[2]+(s.indexOf("-")>-1?s.replace(/^.*?(\d{1,2}:\d{2})/,"").replace(/:00/g,""):"");}
+  return s;
+}
 function mins(v){var m=String(v||"").replace(/：/g,":").match(/(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):99999;}
-function formatPeople(v){var s=String(v||"").trim();if(!s){return"未知";}if(/未知|待確認|不明|未定/.test(s)){return s;}if(/[人位名]/.test(s)){return s;}if(/^\d+$/.test(s)){return s+"人";}return s;}
-function findCol(cols,names){var i,j,label;for(i=0;i<cols.length;i++){label=h(cols[i].label||cols[i].id||"");for(j=0;j<names.length;j++){if(label===h(names[j])){return i;}}}return -1;}
-function looksDate(v){var s=String(v||"").trim();return /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/.test(s)||/^(\d{1,2})[\/\-](\d{1,2})$/.test(s)||/^(\d{1,2})[:：](\d{1,2})([:：]\d{1,2})?$/.test(s)||s.indexOf("Date(")===0;}
-function detectDateCol(cols,rows){var d=findCol(cols,["日期","預約日期","參訪日期","Unnamed0","Unnamed"]),c,r,score,best=-1,bestScore=0,max=cols.length;if(d!==-1){return d;}for(c=0;c<max;c++){score=0;for(r=0;r<rows.length&&r<15;r++){if(looksDate(valueOfCell(rows[r].c[c]))){score++;}}if(score>bestScore){bestScore=score;best=c;}}return bestScore?best:-1;}
-function parseTable(table){var cols=table.cols||[],rows=table.rows||[],di=detectDateCol(cols,rows),ti=findCol(cols,["時間","預約時間","參訪時間"]),ni=findCol(cols,["團名","團體名稱","申請單位","單位名稱","姓名"]),pi=findCol(cols,["人數","參訪人數"]),ri=findCol(cols,["導覽老師","老師","負責老師"]),oi=findCol(cols,["備註","說明","其他"]),out=[],i,r,d,x;if(di===-1){showNotice("找不到日期欄位。請把日期欄標題改成『日期』，或確認日期格式如 2026-06-15。");return [];}hideNotice();for(i=0;i<rows.length;i++){r=rows[i].c||[];d=parseDate(valueOfCell(r[di]));if(!d){continue;}x={y:d.y,m:d.m,d:d.d,time:normTime(ti>=0?valueOfCell(r[ti]):""),name:ni>=0?valueOfCell(r[ni]):"",p:pi>=0?valueOfCell(r[pi]):"",teacher:ri>=0?valueOfCell(r[ri]):"",note:oi>=0?valueOfCell(r[oi]):""};if(x.name||x.time||x.teacher){out.push(x);}}return out;}
+function formatPeople(v){var s=cleanText(v);if(!s){return"未知";}if(/未知|待確認|不明|未定/.test(s)){return s;}if(/[人位名]/.test(s)){return s;}if(/^\d+$/.test(s)){return s+"人";}return s;}
+function looksDate(v){return !!parseDate(v);}
+function detectDateCol(rows){
+  var c,r,score,best=0,bestScore=0,max=6;
+  for(c=0;c<max;c++){score=0;for(r=0;r<rows.length&&r<20;r++){if(looksDate(cell(rows[r].c||[],c))){score++;}}if(score>bestScore){bestScore=score;best=c;}}
+  return bestScore?best:0;
+}
+function extractPhonesFromName(name){
+  var s=String(name||""),m=s.match(/09[\d\s\-]{7,}/g);
+  if(!m||!m.length){return"";}
+  return m[0].replace(/\D/g,"").slice(0,10);
+}
+function isMoveToAnotherDate(raw,x){
+  var m=raw.match(/改(?:至|到)?\s*(\d{1,2})[\/\-\.](\d{1,2})/);
+  if(!m){return false;}
+  return Number(m[1])!==x.m||Number(m[2])!==x.d;
+}
+function shouldSkipRow(x){
+  var raw=cleanText([x.dateRaw,x.timeRaw,x.name,x.p,x.teacher,x.note].join(" "));
+  if(/取消|作廢|刪除|刪掉|撤銷|停辦|不用|不需要/.test(raw)){return true;}
+  if(/重複|與.*重複|留\s*\d+\s*號|留.*號/.test(raw)){return true;}
+  if(isMoveToAnotherDate(raw,x)){return true;}
+  return false;
+}
+function isChangeRow(x){return /改/.test(String(x.timeRaw||"")+String(x.name||"")+String(x.note||""));}
+function dedupeChangedRows(rows){
+  var out=[],i,j,x,old,phone;
+  for(i=0;i<rows.length;i++){
+    x=rows[i];phone=extractPhonesFromName(x.name);
+    if(phone&&isChangeRow(x)){
+      for(j=out.length-1;j>=0;j--){old=out[j];if(old.y===x.y&&old.m===x.m&&old.d===x.d&&extractPhonesFromName(old.name)===phone){out.splice(j,1);skippedRowsCount++;}}
+    }else if(phone){
+      for(j=0;j<out.length;j++){old=out[j];if(old.y===x.y&&old.m===x.m&&old.d===x.d&&extractPhonesFromName(old.name)===phone&&isChangeRow(old)){skippedRowsCount++;x=null;break;}}
+      if(!x){continue;}
+    }
+    out.push(x);
+  }
+  return out;
+}
+function parseTable(table){
+  var rows=table.rows||[],di=detectDateCol(rows),ti=di+1,ni=di+2,pi=di+3,ri=di+4,oi=di+5,out=[],i,r,d,x;
+  rawRowsCount=rows.length;skippedRowsCount=0;
+  for(i=0;i<rows.length;i++){
+    r=rows[i].c||[];d=parseDate(cell(r,di));
+    if(!d){continue;}
+    x={row:i+2,y:d.y,m:d.m,d:d.d,dateRaw:cell(r,di),timeRaw:cell(r,ti),time:normTime(cell(r,ti)),name:cell(r,ni),p:cell(r,pi),teacher:cell(r,ri),note:cell(r,oi)};
+    if(!(x.name||x.time||x.teacher)){continue;}
+    if(shouldSkipRow(x)){skippedRowsCount++;continue;}
+    out.push(x);
+  }
+  if(!out.length&&rows.length){showNotice("有讀到試算表，但沒有抓到有效行程。請確認 A欄日期、B欄時間、C欄團名 是否仍在原位置。");}
+  else{hideNotice();}
+  return dedupeChangedRows(out);
+}
 function level(x){var t=""+x.name+x.note+x.teacher;if(/市長/.test(t)){return{key:"mayor",label:"市長"};}if(/局長|署長|副局長/.test(t)){return{key:"director",label:"局長"};}if(/處長|副處長/.test(t)){return{key:"chief",label:"處長"};}if(/議員|議長|副議長|立委/.test(t)){return{key:"councilor",label:"民代"};}if(/秘書|秘書長/.test(t)){return{key:"secretary",label:"秘書"};}if(/課長|股長|副座|副處/.test(t)){return{key:"section",label:"課股長"};}if(/貴賓|VIP|重要|長官|會長|外賓|KOL|媒體|拍攝|記者會|現勘/.test(t)){return{key:"vip",label:"特殊"};}return{key:"normal",label:"公務/外加"};}
 function top(events){var rank={mayor:8,director:7,chief:6,councilor:5,secretary:4,section:3,vip:2,normal:1},arr=[],i;for(i=0;i<events.length;i++){arr.push(level(events[i]));}arr.sort(function(a,b){return rank[b.key]-rank[a.key];});return arr[0]||{key:"normal"};}
 function closed(y,m,d){return new Date(y,m-1,d).getDay()===2;}
@@ -55,7 +142,7 @@ function numPeople(v){var m=String(v||"").match(/\d+/);return m?Number(m[0]):0;}
 function summary(){var y=today.getFullYear(),m=today.getMonth()+1,d=today.getDate(),td=new Date(y,m-1,d).getTime(),ev=dayEvents(y,m,d),f=[],i,x,sum=0;for(i=0;i<ev.length;i++){sum+=numPeople(ev[i].p);}for(i=0;i<allData.length;i++){x=allData[i];if(new Date(x.y,x.m-1,x.d).getTime()>=td){f.push(x);}}setText("todayCount",ev.length);setText("todayPeople",sum||"未定");setText("futureCount",f.length);}
 function showNotice(msg){var n=byId("notice");if(n){n.style.display="block";n.innerText=msg;}}
 function hideNotice(){var n=byId("notice");if(n){n.style.display="none";}}
-function sheetLoaded(resp){if(!resp||!resp.table){showNotice("資料讀取失敗：請確認試算表共用權限。");setText("lastUpdate","同步失敗");return;}allData=parseTable(resp.table);renderBoth();summary();selectDate(selectedDate.getFullYear(),selectedDate.getMonth()+1,selectedDate.getDate());setText("lastUpdate","最後同步："+clockText()+"｜每15秒更新");}
+function sheetLoaded(resp){if(!resp||!resp.table){showNotice("資料讀取失敗：請確認試算表共用權限。");setText("lastUpdate","同步失敗");return;}allData=parseTable(resp.table);renderBoth();summary();selectDate(selectedDate.getFullYear(),selectedDate.getMonth()+1,selectedDate.getDate());setText("lastUpdate","最後同步："+clockText()+"｜每15秒更新\n有效 "+allData.length+" 筆，已略過 "+skippedRowsCount+" 筆取消/重複/改期資料");}
 function load(){setText("lastUpdate","同步中...");if(loadingScript&&loadingScript.parentNode){loadingScript.parentNode.removeChild(loadingScript);}loadingScript=document.createElement("script");loadingScript.src=SHEET_URL+"&cache="+(new Date().getTime());loadingScript.onerror=function(){showNotice("資料讀取失敗：請確認試算表共用權限，或稍後按重新整理。");setText("lastUpdate","同步失敗");};document.body.appendChild(loadingScript);}
 function jumpToday(){selectedDate=new Date();renderBoth();selectDate(selectedDate.getFullYear(),selectedDate.getMonth()+1,selectedDate.getDate());}
 function jumpTomorrow(){var t=new Date();t.setDate(t.getDate()+1);selectedDate=t;renderBoth();selectDate(t.getFullYear(),t.getMonth()+1,t.getDate());}
