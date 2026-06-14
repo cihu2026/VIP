@@ -21,26 +21,29 @@
 </div>
 <script>
 var SHEET_ID="1-nkw5ZQIoQyNflxWbQ4_enhvtVAspX7RXGBm5u7RnBc";
-var SHEET_URL="https://docs.google.com/spreadsheets/d/"+SHEET_ID+"/gviz/tq?tqx=out:csv";
+var SHEET_URL="https://docs.google.com/spreadsheets/d/"+SHEET_ID+"/gviz/tq?tqx=out:json;responseHandler:sheetLoaded";
 var SYNC_INTERVAL=15000;
 var allData=[];
 var selectedDate=new Date();
 var today=new Date();
+var loadingScript=null;
 function byId(id){return document.getElementById(id);}
 function setText(id,text){var e=byId(id);if(e){e.innerText=text;}}
-function updateTime(){setText("clock",new Date().toLocaleTimeString("zh-TW",{hour12:false}));}
+function pad(n){n=Number(n);return n<10?"0"+n:""+n;}
+function clockText(){var d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());}
+function updateTime(){setText("clock",clockText());}
 updateTime();setInterval(updateTime,1000);
 function esc(t){return String(t||"").replace(/[&<>']/g,function(s){return {"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;"}[s];});}
 function h(t){return String(t||"").replace(/[：:]/g,"").replace(/\s+/g,"").trim();}
-function parseCSV(csv){var rows=[],row=[],field="",q=false,i,c,n;for(i=0;i<csv.length;i++){c=csv.charAt(i);n=csv.charAt(i+1);if(c==='"'){if(q&&n==='"'){field+='"';i++;}else{q=!q;}}else if(c===','&&!q){row.push(field.trim());field="";}else if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&n==='\n'){i++;}row.push(field.trim());if(row.join("").trim()!==""){rows.push(row);}row=[];field="";}else{field+=c;}}if(field!==""||row.length){row.push(field.trim());if(row.join("").trim()!==""){rows.push(row);}}return rows;}
-function looksDate(v){var s=String(v||"").trim();return /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/.test(s)||/^(\d{1,2})[\/\-](\d{1,2})$/.test(s)||/^(\d{1,2})[:：](\d{1,2})([:：]\d{1,2})?$/.test(s);}
-function parseDate(v){var s=String(v||"").trim(),m;m=s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);if(m){return{y:Number(m[1]),m:Number(m[2]),d:Number(m[3])};}m=s.match(/^(\d{1,2})[\/\-](\d{1,2})$/);if(m){return{y:today.getFullYear(),m:Number(m[1]),d:Number(m[2])};}m=s.match(/^(\d{1,2})[:：](\d{1,2})([:：]\d{1,2})?$/);if(m){return{y:today.getFullYear(),m:Number(m[1]),d:Number(m[2])};}return null;}
-function normTime(v){var s=String(v||"").trim().replace(/：/g,":"),m=s.match(/^(\d{1,2}):(\d{2}):\d{2}$/);return m?("0"+m[1]).slice(-2)+":"+m[2]:s;}
+function valueOfCell(c){if(!c){return"";}if(c.f!==undefined&&c.f!==null){return String(c.f);}if(c.v!==undefined&&c.v!==null){return String(c.v);}return"";}
+function parseDate(v){var s=String(v||"").trim(),m;if(s.indexOf("Date(")===0){m=s.match(/Date\((\d+),(\d+),(\d+)/);if(m){return{y:Number(m[1]),m:Number(m[2])+1,d:Number(m[3])};}}m=s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);if(m){return{y:Number(m[1]),m:Number(m[2]),d:Number(m[3])};}m=s.match(/^(\d{1,2})[\/\-](\d{1,2})$/);if(m){return{y:today.getFullYear(),m:Number(m[1]),d:Number(m[2])};}m=s.match(/^(\d{1,2})[:：](\d{1,2})([:：]\d{1,2})?$/);if(m){return{y:today.getFullYear(),m:Number(m[1]),d:Number(m[2])};}return null;}
+function normTime(v){var s=String(v||"").trim().replace(/：/g,":"),m=s.match(/^(\d{1,2}):(\d{2}):\d{2}$/);return m?pad(m[1])+":"+m[2]:s;}
 function mins(v){var m=String(v||"").replace(/：/g,":").match(/(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):99999;}
 function formatPeople(v){var s=String(v||"").trim();if(!s){return"未知";}if(/未知|待確認|不明|未定/.test(s)){return s;}if(/[人位名]/.test(s)){return s;}if(/^\d+$/.test(s)){return s+"人";}return s;}
-function col(headers,names){var i,j,ns=[];for(j=0;j<names.length;j++){ns.push(h(names[j]));}for(i=0;i<headers.length;i++){if(ns.indexOf(headers[i])!==-1){return i;}}return -1;}
-function detectDate(headers,body){var d=col(headers,["日期","預約日期","參訪日期","Unnamed0","Unnamed"]);if(d!==-1){return d;}var best=-1,score=0,c,r,s,max=0;for(r=0;r<body.length;r++){if(body[r].length>max){max=body[r].length;}}for(c=0;c<max;c++){s=0;for(r=0;r<body.length&&r<15;r++){if(looksDate(body[r][c])){s++;}}if(s>score){score=s;best=c;}}return score?best:-1;}
-function parseData(csv){var rows=parseCSV(csv);if(!rows.length){return [];}var headers=[],i;for(i=0;i<rows[0].length;i++){headers.push(h(rows[0][i]));}var body=rows.slice(1),di=detectDate(headers,body),ti=col(headers,["時間","預約時間","參訪時間"]),ni=col(headers,["團名","團體名稱","申請單位","單位名稱","姓名"]),pi=col(headers,["人數","參訪人數"]),ri=col(headers,["導覽老師","老師","負責老師"]),oi=col(headers,["備註","說明","其他"]),out=[],r,d,x;if(di===-1){showNotice("找不到日期欄位。請把日期欄標題改成『日期』，或確認日期格式如 2026-06-15。");return [];}hideNotice();for(i=0;i<body.length;i++){r=body[i];d=parseDate(r[di]);if(!d){continue;}x={y:d.y,m:d.m,d:d.d,time:normTime(ti>=0?r[ti]:""),name:ni>=0?r[ni]:"",p:pi>=0?r[pi]:"",teacher:ri>=0?r[ri]:"",note:oi>=0?r[oi]:""};if(x.name||x.time||x.teacher){out.push(x);}}return out;}
+function findCol(cols,names){var i,j,label;for(i=0;i<cols.length;i++){label=h(cols[i].label||cols[i].id||"");for(j=0;j<names.length;j++){if(label===h(names[j])){return i;}}}return -1;}
+function looksDate(v){var s=String(v||"").trim();return /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/.test(s)||/^(\d{1,2})[\/\-](\d{1,2})$/.test(s)||/^(\d{1,2})[:：](\d{1,2})([:：]\d{1,2})?$/.test(s)||s.indexOf("Date(")===0;}
+function detectDateCol(cols,rows){var d=findCol(cols,["日期","預約日期","參訪日期","Unnamed0","Unnamed"]),c,r,score,best=-1,bestScore=0,max=cols.length;if(d!==-1){return d;}for(c=0;c<max;c++){score=0;for(r=0;r<rows.length&&r<15;r++){if(looksDate(valueOfCell(rows[r].c[c]))){score++;}}if(score>bestScore){bestScore=score;best=c;}}return bestScore?best:-1;}
+function parseTable(table){var cols=table.cols||[],rows=table.rows||[],di=detectDateCol(cols,rows),ti=findCol(cols,["時間","預約時間","參訪時間"]),ni=findCol(cols,["團名","團體名稱","申請單位","單位名稱","姓名"]),pi=findCol(cols,["人數","參訪人數"]),ri=findCol(cols,["導覽老師","老師","負責老師"]),oi=findCol(cols,["備註","說明","其他"]),out=[],i,r,d,x;if(di===-1){showNotice("找不到日期欄位。請把日期欄標題改成『日期』，或確認日期格式如 2026-06-15。");return [];}hideNotice();for(i=0;i<rows.length;i++){r=rows[i].c||[];d=parseDate(valueOfCell(r[di]));if(!d){continue;}x={y:d.y,m:d.m,d:d.d,time:normTime(ti>=0?valueOfCell(r[ti]):""),name:ni>=0?valueOfCell(r[ni]):"",p:pi>=0?valueOfCell(r[pi]):"",teacher:ri>=0?valueOfCell(r[ri]):"",note:oi>=0?valueOfCell(r[oi]):""};if(x.name||x.time||x.teacher){out.push(x);}}return out;}
 function level(x){var t=""+x.name+x.note+x.teacher;if(/市長/.test(t)){return{key:"mayor",label:"市長"};}if(/局長|署長|副局長/.test(t)){return{key:"director",label:"局長"};}if(/處長|副處長/.test(t)){return{key:"chief",label:"處長"};}if(/議員|議長|副議長|立委/.test(t)){return{key:"councilor",label:"民代"};}if(/秘書|秘書長/.test(t)){return{key:"secretary",label:"秘書"};}if(/課長|股長|副座|副處/.test(t)){return{key:"section",label:"課股長"};}if(/貴賓|VIP|重要|長官|會長|外賓|KOL|媒體|拍攝|記者會|現勘/.test(t)){return{key:"vip",label:"特殊"};}return{key:"normal",label:"公務/外加"};}
 function top(events){var rank={mayor:8,director:7,chief:6,councilor:5,secretary:4,section:3,vip:2,normal:1},arr=[],i;for(i=0;i<events.length;i++){arr.push(level(events[i]));}arr.sort(function(a,b){return rank[b.key]-rank[a.key];});return arr[0]||{key:"normal"};}
 function closed(y,m,d){return new Date(y,m-1,d).getDay()===2;}
@@ -52,12 +55,12 @@ function numPeople(v){var m=String(v||"").match(/\d+/);return m?Number(m[0]):0;}
 function summary(){var y=today.getFullYear(),m=today.getMonth()+1,d=today.getDate(),td=new Date(y,m-1,d).getTime(),ev=dayEvents(y,m,d),f=[],i,x,sum=0;for(i=0;i<ev.length;i++){sum+=numPeople(ev[i].p);}for(i=0;i<allData.length;i++){x=allData[i];if(new Date(x.y,x.m-1,x.d).getTime()>=td){f.push(x);}}setText("todayCount",ev.length);setText("todayPeople",sum||"未定");setText("futureCount",f.length);}
 function showNotice(msg){var n=byId("notice");if(n){n.style.display="block";n.innerText=msg;}}
 function hideNotice(){var n=byId("notice");if(n){n.style.display="none";}}
-function requestCSV(done){var xhr=new XMLHttpRequest();xhr.onreadystatechange=function(){if(xhr.readyState===4){if(xhr.status>=200&&xhr.status<300){done(null,xhr.responseText);}else{done(new Error("HTTP "+xhr.status));}}};xhr.open("GET",SHEET_URL+"&cache="+(new Date().getTime()),true);xhr.send();}
-function load(){setText("lastUpdate","同步中...");requestCSV(function(err,text){if(err){showNotice("資料讀取失敗：請確認試算表共用權限，或稍後按重新整理。");setText("lastUpdate","同步失敗");return;}allData=parseData(text);renderBoth();summary();selectDate(selectedDate.getFullYear(),selectedDate.getMonth()+1,selectedDate.getDate());setText("lastUpdate","最後同步："+new Date().toLocaleTimeString("zh-TW",{hour12:false})+"｜每15秒更新");});}
+function sheetLoaded(resp){if(!resp||!resp.table){showNotice("資料讀取失敗：請確認試算表共用權限。");setText("lastUpdate","同步失敗");return;}allData=parseTable(resp.table);renderBoth();summary();selectDate(selectedDate.getFullYear(),selectedDate.getMonth()+1,selectedDate.getDate());setText("lastUpdate","最後同步："+clockText()+"｜每15秒更新");}
+function load(){setText("lastUpdate","同步中...");if(loadingScript&&loadingScript.parentNode){loadingScript.parentNode.removeChild(loadingScript);}loadingScript=document.createElement("script");loadingScript.src=SHEET_URL+"&cache="+(new Date().getTime());loadingScript.onerror=function(){showNotice("資料讀取失敗：請確認試算表共用權限，或稍後按重新整理。");setText("lastUpdate","同步失敗");};document.body.appendChild(loadingScript);}
 function jumpToday(){selectedDate=new Date();renderBoth();selectDate(selectedDate.getFullYear(),selectedDate.getMonth()+1,selectedDate.getDate());}
 function jumpTomorrow(){var t=new Date();t.setDate(t.getDate()+1);selectedDate=t;renderBoth();selectDate(t.getFullYear(),t.getMonth()+1,t.getDate());}
 function manualReload(){load();}
-try{load();setInterval(load,SYNC_INTERVAL);}catch(e){showNotice("程式啟動失敗："+e.message);setText("lastUpdate","程式錯誤");}
+try{updateTime();load();setInterval(load,SYNC_INTERVAL);}catch(e){showNotice("程式啟動失敗："+e.message);setText("lastUpdate","程式錯誤");}
 </script>
 </body>
 </html>
